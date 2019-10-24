@@ -52,7 +52,8 @@
 }
 
 class Boid {
-    static size = 10;
+    static defaultSize = 10;
+    static size        = Boid.defaultSize;
 
     position     : Vector2D;
     velocity     : Vector2D;
@@ -89,10 +90,17 @@ class Boid {
 }
 
 class Boids {
-    static maximumSpeed    =   7;
-    static cohesionValue   = 100;
-    static separationValue =  10;
-    static alignmentValue  =   8;
+    static defaultInitialBoidCount     = 100;
+    static defaultMaximumSpeed         =   7;
+    static defaultCohesionParameter    = 100;
+    static defaultSeparationParameter  =  10;
+    static defaultAlignmentParameter   =   8;
+
+    static initialBoidCount    = Boids.defaultInitialBoidCount   ;
+    static maximumSpeed        = Boids.defaultMaximumSpeed       ;
+    static cohesionParameter   = Boids.defaultCohesionParameter  ;
+    static separationParameter = Boids.defaultSeparationParameter;
+    static alignmentParameter  = Boids.defaultAlignmentParameter ;
 
     boids: Boid[] = [];
 
@@ -131,14 +139,14 @@ class Boids {
             center.plusEqual(this.boids[i].position);
         }
         center.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionValue));
+        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
     }
 
     private separation(index: number): void {
         for (let i = 0, length = this.boids.length; i < length; i++) {
             if (i === index)
                 continue;
-            if (this.boids[i].getDistance(this.boids[index]) < Boids.separationValue)
+            if (this.boids[i].getDistance(this.boids[index]) < Boids.separationParameter)
                 this.boids[index].velocity.minusEqual(this.boids[i].position.minus(this.boids[index].position));
         }
     }
@@ -153,12 +161,14 @@ class Boids {
             average.plusEqual(this.boids[i].velocity);
         }
         average.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentValue));
+        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
     }
 }
 
 class View {
-    private canvas : HTMLCanvasElement;
+    static sizeRate: number = 0.9;
+
+    canvas         : HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     size           : Vector2D;
 
@@ -169,8 +179,8 @@ class View {
     }
 
     update(): void {
-        this.size.x = this.canvas.width  = window.innerWidth ;
-        this.size.y = this.canvas.height = window.innerHeight;
+        this.size.x = this.canvas.width  = Math.round(window.innerWidth  * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round(window.innerHeight * View.sizeRate);
     }
 
     drawBoids(boids: Boids): void {
@@ -186,14 +196,66 @@ class View {
     }
 
     private drawCount(count: number): void {
-        this.context.fillStyle = "#444";
-        this.context.font = "16px sans-serif";
-        this.context.fillText("count : " + String(count), 20, 40);
+        this.context.fillStyle = "gray";
+        this.context.font = "14px";
+        this.context.fillText("Boids: " + String(count), 20, 20);
+    }
+}
+
+class Settings {
+    private static key = "ShoBoids";
+
+    static get() : any {
+        return  {
+            boidSize           : Boid .size               ,
+            initialBoidCount   : Boids.initialBoidCount   ,
+            maximumSpeed       : Boids.maximumSpeed       ,
+            cohesionParameter  : Boids.cohesionParameter  ,
+            separationParameter: Boids.separationParameter,
+            alignmentParameter : Boids.alignmentParameter
+        };
+    }
+
+    static set(boidSize: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
+        Boid .size                = boidSize           ;
+        Boids.initialBoidCount    = initialBoidCount   ;
+        Boids.maximumSpeed        = maximumSpeed       ;
+        Boids.cohesionParameter   = cohesionParameter  ;
+        Boids.separationParameter = separationParameter;
+        Boids.alignmentParameter  = alignmentParameter ;
+    }
+
+    static reset(): void {
+        Boid .size                = Boid .defaultSize               ;
+        Boids.initialBoidCount    = Boids.defaultInitialBoidCount   ;
+        Boids.maximumSpeed        = Boids.defaultMaximumSpeed       ;
+        Boids.cohesionParameter   = Boids.defaultCohesionParameter  ;
+        Boids.separationParameter = Boids.defaultSeparationParameter;
+        Boids.alignmentParameter  = Boids.defaultAlignmentParameter ;
+    }
+
+    static save(): boolean {
+        if (!window.localStorage)
+            return false;
+        window.localStorage.setItem(Settings.key, JSON.stringify(Settings.get()));
+        return true;
+    }
+
+    static load(): boolean {
+        if (!window.localStorage)
+            return false;
+        var jsonText = window.localStorage.getItem(Settings.key);
+        if (jsonText == null)
+            return false;
+        var data = JSON.parse(jsonText);
+        if (data == null)
+            return false;
+        Settings.set(data.boidSize, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
+        return true;
     }
 }
 
 class Program {
-    private static initialBoidCount = 100;
     private static fps              =  30;
     private static createTime       =  10;
     private static startTime        = 100;
@@ -203,20 +265,26 @@ class Program {
     private appendTimer: number = 0;
 
     constructor() {
+        Settings.load();
         setTimeout(() => this.initialize(), Program.startTime);
-        this.initialize();
     }
 
     private initialize(): void {
         this.bindEvents();
         this.view.update();
-        this.appendBoids(Program.initialBoidCount);
-        setInterval(this.step.bind(this), 1000 / Program.fps);
+        this.appendBoids(Boids.initialBoidCount);
+        setInterval(() => this.step(), 1000 / Program.fps);
+        Program.initializeForm();
+    }
+
+    private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
+        var rect = element.getBoundingClientRect();
+        return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
     }
 
     private bindEvents(): void {
-        window.addEventListener("mousedown", e => this.appendBoids(1, new Vector2D(e.pageX, e.pageY)));
-        window.addEventListener("mouseup", () => clearInterval(this.appendTimer));
+        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
+        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
         window.addEventListener("resize", () =>  this.view.update());
     }
 
@@ -248,7 +316,41 @@ class Program {
         this.view.drawBoids(this.boids);
         this.boids.move(this.view.size);
     }
+
+    static onFormSubmit(): void {
+        let settingForm = (<any>document).settingForm;
+        Settings.set(
+            Number(settingForm.boidSizeTextBox           .value),
+            Number(settingForm.initialBoidCountTextBox   .value),
+            Number(settingForm.maximumSpeedTextBox       .value),
+            Number(settingForm.cohesionParameterTextBox  .value),
+            Number(settingForm.separationParameterTextBox.value),
+            Number(settingForm.alignmentParameterTextBox .value)
+        );
+        Settings.save();
+    }
+
+    static onReset(): void {
+        Settings.reset();
+        Settings.save();
+        Program.initializeForm();
+    }
+
+    private static initializeForm(): void {
+        let settings = Settings.get();
+        Program.setToInput("boidSizeTextBox"           , settings.boidSize           );
+        Program.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
+        Program.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
+        Program.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
+        Program.setToInput("separationParameterTextBox", settings.separationParameter);
+        Program.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
+    }
+
+    private static setToInput(inputName: string, value: number): void {
+        let elements = document.getElementsByName(inputName);
+        if (elements.length > 0)
+            (<HTMLInputElement>(elements[0])).value = String(value);
+    }
 }
 
 onload = () => new Program();
-//document.addEventListener("DOMContentLoaded", () => new Program());
