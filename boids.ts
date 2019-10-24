@@ -166,7 +166,7 @@ class Boids {
 }
 
 class View {
-    static sizeRate: number = 0.9;
+    static sizeRate: number = 0.98;
 
     canvas         : HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -179,8 +179,9 @@ class View {
     }
 
     update(): void {
-        this.size.x = this.canvas.width  = Math.round(window.innerWidth  * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round(window.innerHeight * View.sizeRate);
+        let panel = <HTMLDivElement>document.getElementById("panel");
+        this.size.x = this.canvas.width  = Math.round(window.innerWidth * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     }
 
     drawBoids(boids: Boids): void {

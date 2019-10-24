@@ -15,34 +15,38 @@
             color:black;
             background:whitesmoke;
             border-left: solid 4px gray;
-            border-bottom: solid 3px darkgray;
+            border-bottom: solid 2px darkgray;
         }
         canvas {
             background:snow;
             border: solid 1px lightgray;
+            margin: 0.3em;
+            padding: 0.1em;
         }
     </style>
 </head>
 <body>
     <h1><a href="https://en.wikipedia.org/wiki/Boids">Boids</a> &mdash;an artificial life program&mdash; | Sho's Software</h1>
-    <div>
-        <p>Source code: <a href="https://github.com/Fujiwo/Shos.Boids">Shos.Boids | GitHub</a></p>
+    <div id="panel">
+        <div>
+            <p>Source code: <a href="https://github.com/Fujiwo/Shos.Boids">Shos.Boids | GitHub</a></p>
+        </div>
+        <div>
+            <form name="settingForm">
+                <label>boid size:</label> <input type="number" name="boidSizeTextBox">
+                <label>initial boid Count:</label> <input type="number" name="initialBoidCountTextBox">
+                <label>maximum speed:</label> <input type="number" name="maximumSpeedTextBox">
+                <label>cohesion parameter:</label> <input type="number" name="cohesionParameterTextBox">
+                <label>separation parameter:</label> <input type="number" name="separationParameterTextBox">
+                <label>alignment parameter:</label> <input type="number" name="alignmentParameterTextBox">
+                <input type="button" value="submit" onclick="Program.onFormSubmit()">
+                <input type="button" value="reset" onclick="Program.onReset()">
+            </form>
+        </div>
     </div>
-    <div>
-        <form name="settingForm">
-            <label>boid size:</label> <input type="number" name="boidSizeTextBox">
-            <label>initial boid Count:</label> <input type="number" name="initialBoidCountTextBox">
-            <label>maximum speed:</label> <input type="number" name="maximumSpeedTextBox">
-            <label>cohesion parameter:</label> <input type="number" name="cohesionParameterTextBox">
-            <label>separation parameter:</label> <input type="number" name="separationParameterTextBox">
-            <label>alignment parameter:</label> <input type="number" name="alignmentParameterTextBox">
-            <input type="button" value="submit" onclick="Program.onFormSubmit()">
-            <input type="button" value="reset" onclick="Program.onReset()">
-        </form>
-    </divdiv>
     <div>
         <canvas id="canvas"></canvas>
-    </div>
+    </divdiv>
     <script src="boids.js"></script>
 </body>
 </html>

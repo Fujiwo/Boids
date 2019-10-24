@@ -152,8 +152,9 @@ var View = /** @class */ (function () {
         this.size = new Vector2D();
     }
     View.prototype.update = function () {
+        var panel = document.getElementById("panel");
         this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round(window.innerHeight * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     };
     View.prototype.drawBoids = function (boids) {
         this.drawAllBoid(boids.boids);
