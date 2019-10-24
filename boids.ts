@@ -52,11 +52,11 @@
 }
 
 class Boid {
-    private size = 5;
+    static size = 10;
 
-    position: Vector2D;
-    velocity: Vector2D;
-    private color   : string  ;
+    position     : Vector2D;
+    velocity     : Vector2D;
+    private color: string  ;
 
     get speed(): number {
         return this.velocity.absoluteValue;
@@ -68,18 +68,8 @@ class Boid {
         this.color    = color   ;
     }
 
-    draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(
-            this.position.x,
-            this.position.y,
-            this.size / 2,
-            0,
-            Math.PI * 2,
-            false
-        );
-        ctx.fill();
+    draw(context: CanvasRenderingContext2D): void {
+        Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
     }
 
     move(): void {
@@ -89,13 +79,20 @@ class Boid {
     getDistance(another: Boid): number {
         return this.position.getDistance(another.position);
     }
+
+    private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
+        context.fillStyle = color;
+        context.beginPath();
+        context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
+        context.fill();
+    }
 }
 
 class Boids {
-    private maximumSpeed = 7;
-    private cohesionValue = 100;
-    private separationValue = 10;
-    private alignmentValue = 8;
+    static maximumSpeed    =   7;
+    static cohesionValue   = 100;
+    static separationValue =  10;
+    static alignmentValue  =   8;
 
     boids: Boid[] = [];
 
@@ -112,8 +109,8 @@ class Boids {
             this.separation(index);
             this.alignment(index);
 
-            if (speed >= this.maximumSpeed)
-                boid.velocity = boid.velocity.multiply(this.maximumSpeed / speed);
+            if (speed >= Boids.maximumSpeed)
+                boid.velocity = boid.velocity.multiply(Boids.maximumSpeed / speed);
 
             if (boid.position.x < 0 && boid.velocity.x < 0 || boid.position.x > size.x && boid.velocity.x > 0)
                 boid.velocity.x *= -1;
@@ -134,14 +131,14 @@ class Boids {
             center.plusEqual(this.boids[i].position);
         }
         center.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(this.cohesionValue));
+        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionValue));
     }
 
     private separation(index: number): void {
         for (let i = 0, length = this.boids.length; i < length; i++) {
             if (i === index)
                 continue;
-            if (this.boids[i].getDistance(this.boids[index]) < this.separationValue)
+            if (this.boids[i].getDistance(this.boids[index]) < Boids.separationValue)
                 this.boids[index].velocity.minusEqual(this.boids[i].position.minus(this.boids[index].position));
         }
     }
@@ -156,18 +153,18 @@ class Boids {
             average.plusEqual(this.boids[i].velocity);
         }
         average.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(this.alignmentValue));
+        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentValue));
     }
 }
 
 class View {
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
-    size: Vector2D;
+    private canvas : HTMLCanvasElement;
+    private context: CanvasRenderingContext2D;
+    size           : Vector2D;
 
     constructor() {
         this.canvas = <HTMLCanvasElement>document.querySelector("#canvas");
-        this.ctx = <CanvasRenderingContext2D>this.canvas.getContext("2d");
+        this.context = <CanvasRenderingContext2D>this.canvas.getContext("2d");
         this.size = new Vector2D();
     }
 
@@ -181,38 +178,40 @@ class View {
     }
 
     private drawAllBoid(boids: Boid[]): void {
-        this.ctx.clearRect(0, 0, this.size.x, this.size.y);
+        this.context.clearRect(0, 0, this.size.x, this.size.y);
 
         for (let index = 0, length = boids.length; index < length; index++)
-            boids[index].draw(this.ctx);
+            boids[index].draw(this.context);
         this.drawCount(boids.length);
     }
 
     private drawCount(count: number): void {
-        this.ctx.fillStyle = "#444";
-        this.ctx.font = "16px sans-serif";
-        this.ctx.fillText("count : " + String(count), 20, 40);
+        this.context.fillStyle = "#444";
+        this.context.font = "16px sans-serif";
+        this.context.fillText("count : " + String(count), 20, 40);
     }
 }
 
 class Program {
-    private initialBoidCount = 100;
-    private fps          = 30;
-    private createTime = 10;
-    private startTime = 500;
+    private static initialBoidCount = 100;
+    private static fps              =  30;
+    private static createTime       =  10;
+    private static startTime        = 100;
+
     private boids = new Boids();
     private view = new View();
     private appendTimer: number = 0;
 
     constructor() {
-        setTimeout(() => this.initialize(), this.startTime);
+        setTimeout(() => this.initialize(), Program.startTime);
+        this.initialize();
     }
 
     private initialize(): void {
         this.bindEvents();
         this.view.update();
-        this.appendBoids(this.initialBoidCount);
-        setInterval(this.step.bind(this), 1000 / this.fps);
+        this.appendBoids(Program.initialBoidCount);
+        setInterval(this.step.bind(this), 1000 / Program.fps);
     }
 
     private bindEvents(): void {
@@ -228,16 +227,16 @@ class Program {
                 clearInterval(this.appendTimer);
                 return;
             }
-            this.boids.append(this.createBoid(position));
+            this.boids.append(Program.createBoid(this.view.size, position));
             index++;
-        }, this.createTime);
+        }, Program.createTime);
     }
 
-    private createBoid(position?: Vector2D) {
-        return new Boid(position || this.view.size.innerProduct(new Vector2D(Math.random(), Math.random())), new Vector2D(), this.getRandomColor());
+    private static createBoid(areaSize: Vector2D ,position?: Vector2D) {
+        return new Boid(position || areaSize.innerProduct(new Vector2D(Math.random(), Math.random())), new Vector2D(), this.getRandomColor());
     }
 
-    private getRandomColor() {
+    private static getRandomColor() {
         let colors = [0, 0, 0];
         colors = colors.map(() => {
             return Math.round(Math.random() * 0xff);
@@ -251,4 +250,5 @@ class Program {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => new Program());
+onload = () => new Program();
+//document.addEventListener("DOMContentLoaded", () => new Program());
