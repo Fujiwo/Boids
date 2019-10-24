@@ -1,81 +1,96 @@
 "use strict";
-class Vector2D {
-    constructor(x = 0, y = 0) {
+var Vector2D = /** @class */ (function () {
+    function Vector2D(x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
         this.x = x;
         this.y = y;
     }
-    get absoluteValue() {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
-    }
-    plus(another) {
+    Object.defineProperty(Vector2D.prototype, "absoluteValue", {
+        get: function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Vector2D.prototype.plus = function (another) {
         return new Vector2D(this.x + another.x, this.y + another.y);
-    }
-    plusEqual(another) {
+    };
+    Vector2D.prototype.plusEqual = function (another) {
         this.x += another.x;
         this.y += another.y;
-    }
-    minus(another) {
+    };
+    Vector2D.prototype.minus = function (another) {
         return new Vector2D(this.x - another.x, this.y - another.y);
-    }
-    minusEqual(another) {
+    };
+    Vector2D.prototype.minusEqual = function (another) {
         this.x -= another.x;
         this.y -= another.y;
-    }
-    multiply(value) {
+    };
+    Vector2D.prototype.multiply = function (value) {
         return new Vector2D(this.x * value, this.y * value);
-    }
-    innerProduct(another) {
+    };
+    Vector2D.prototype.innerProduct = function (another) {
         return new Vector2D(this.x * another.x, this.y * another.y);
-    }
-    divideBy(value) {
+    };
+    Vector2D.prototype.divideBy = function (value) {
         return new Vector2D(this.x / value, this.y / value);
-    }
-    divideByEqual(value) {
+    };
+    Vector2D.prototype.divideByEqual = function (value) {
         this.x /= value;
         this.y /= value;
-    }
-    getDistance(another) {
+    };
+    Vector2D.prototype.getDistance = function (another) {
         return this.minus(another).absoluteValue;
-    }
-}
-class Boid {
-    constructor(position = new Vector2D(), velocity = new Vector2D(), color = "black") {
+    };
+    return Vector2D;
+}());
+var Boid = /** @class */ (function () {
+    function Boid(position, velocity, color) {
+        if (position === void 0) { position = new Vector2D(); }
+        if (velocity === void 0) { velocity = new Vector2D(); }
+        if (color === void 0) { color = "black"; }
         this.position = position;
         this.velocity = velocity;
         this.color = color;
     }
-    get speed() {
-        return this.velocity.absoluteValue;
-    }
-    draw(context) {
+    Object.defineProperty(Boid.prototype, "speed", {
+        get: function () {
+            return this.velocity.absoluteValue;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Boid.prototype.draw = function (context) {
         Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
-    }
-    move() {
+    };
+    Boid.prototype.move = function () {
         this.position.plusEqual(this.velocity);
-    }
-    getDistance(another) {
+    };
+    Boid.prototype.getDistance = function (another) {
         return this.position.getDistance(another.position);
-    }
-    static drawCircle(context, center, radius, color) {
+    };
+    Boid.drawCircle = function (context, center, radius, color) {
         context.fillStyle = color;
         context.beginPath();
         context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
         context.fill();
-    }
-}
-Boid.defaultSize = 5;
-Boid.size = Boid.defaultSize;
-class Boids {
-    constructor() {
+    };
+    Boid.defaultSize = 5;
+    Boid.size = Boid.defaultSize;
+    return Boid;
+}());
+var Boids = /** @class */ (function () {
+    function Boids() {
         this.boids = [];
     }
-    append(boid) {
+    Boids.prototype.append = function (boid) {
         this.boids.push(boid);
-    }
-    move(size) {
-        for (let index = 0, length = this.boids.length; index < length; index++) {
-            let boid = this.boids[index];
-            let speed = boid.speed;
+    };
+    Boids.prototype.move = function (size) {
+        for (var index = 0, length_1 = this.boids.length; index < length_1; index++) {
+            var boid = this.boids[index];
+            var speed = boid.speed;
             this.cohesion(index);
             this.separation(index);
             this.alignment(index);
@@ -87,76 +102,80 @@ class Boids {
                 boid.velocity.y *= -1;
             boid.move();
         }
-    }
-    cohesion(index) {
-        let center = new Vector2D();
-        let boidCount = this.boids.length;
-        for (let i = 0; i < boidCount; i++) {
+    };
+    Boids.prototype.cohesion = function (index) {
+        var center = new Vector2D();
+        var boidCount = this.boids.length;
+        for (var i = 0; i < boidCount; i++) {
             if (i === index)
                 continue;
             center.plusEqual(this.boids[i].position);
         }
         center.divideByEqual(boidCount - 1);
         this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
-    }
-    separation(index) {
-        for (let i = 0, length = this.boids.length; i < length; i++) {
+    };
+    Boids.prototype.separation = function (index) {
+        for (var i = 0, length_2 = this.boids.length; i < length_2; i++) {
             if (i === index)
                 continue;
             if (this.boids[i].getDistance(this.boids[index]) < Boids.separationParameter)
                 this.boids[index].velocity.minusEqual(this.boids[i].position.minus(this.boids[index].position));
         }
-    }
-    alignment(index) {
-        let average = new Vector2D();
-        let boidCount = this.boids.length;
-        for (let i = 0; i < boidCount; i++) {
+    };
+    Boids.prototype.alignment = function (index) {
+        var average = new Vector2D();
+        var boidCount = this.boids.length;
+        for (var i = 0; i < boidCount; i++) {
             if (i === index)
                 continue;
             average.plusEqual(this.boids[i].velocity);
         }
         average.divideByEqual(boidCount - 1);
         this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
-    }
-}
-Boids.defaultInitialBoidCount = 100;
-Boids.defaultMaximumSpeed = 7;
-Boids.defaultCohesionParameter = 100;
-Boids.defaultSeparationParameter = 10;
-Boids.defaultAlignmentParameter = 8;
-Boids.initialBoidCount = Boids.defaultInitialBoidCount;
-Boids.maximumSpeed = Boids.defaultMaximumSpeed;
-Boids.cohesionParameter = Boids.defaultCohesionParameter;
-Boids.separationParameter = Boids.defaultSeparationParameter;
-Boids.alignmentParameter = Boids.defaultAlignmentParameter;
-class View {
-    constructor() {
+    };
+    Boids.defaultInitialBoidCount = 100;
+    Boids.defaultMaximumSpeed = 7;
+    Boids.defaultCohesionParameter = 100;
+    Boids.defaultSeparationParameter = 10;
+    Boids.defaultAlignmentParameter = 8;
+    Boids.initialBoidCount = Boids.defaultInitialBoidCount;
+    Boids.maximumSpeed = Boids.defaultMaximumSpeed;
+    Boids.cohesionParameter = Boids.defaultCohesionParameter;
+    Boids.separationParameter = Boids.defaultSeparationParameter;
+    Boids.alignmentParameter = Boids.defaultAlignmentParameter;
+    return Boids;
+}());
+var View = /** @class */ (function () {
+    function View() {
         this.canvas = document.querySelector("#canvas");
         this.context = this.canvas.getContext("2d");
         this.size = new Vector2D();
     }
-    update() {
+    View.prototype.update = function () {
         this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
         this.size.y = this.canvas.height = Math.round(window.innerHeight * View.sizeRate);
-    }
-    drawBoids(boids) {
+    };
+    View.prototype.drawBoids = function (boids) {
         this.drawAllBoid(boids.boids);
-    }
-    drawAllBoid(boids) {
+    };
+    View.prototype.drawAllBoid = function (boids) {
         this.context.clearRect(0, 0, this.size.x, this.size.y);
-        for (let index = 0, length = boids.length; index < length; index++)
+        for (var index = 0, length_3 = boids.length; index < length_3; index++)
             boids[index].draw(this.context);
         this.drawCount(boids.length);
-    }
-    drawCount(count) {
+    };
+    View.prototype.drawCount = function (count) {
         this.context.fillStyle = "gray";
         this.context.font = "14px";
         this.context.fillText("Boids: " + String(count), 20, 20);
+    };
+    View.sizeRate = 0.9;
+    return View;
+}());
+var Settings = /** @class */ (function () {
+    function Settings() {
     }
-}
-View.sizeRate = 0.9;
-class Settings {
-    static get() {
+    Settings.get = function () {
         return {
             boidSize: Boid.size,
             initialBoidCount: Boids.initialBoidCount,
@@ -165,30 +184,30 @@ class Settings {
             separationParameter: Boids.separationParameter,
             alignmentParameter: Boids.alignmentParameter
         };
-    }
-    static set(boidSize, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
+    };
+    Settings.set = function (boidSize, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
         Boid.size = boidSize;
         Boids.initialBoidCount = initialBoidCount;
         Boids.maximumSpeed = maximumSpeed;
         Boids.cohesionParameter = cohesionParameter;
         Boids.separationParameter = separationParameter;
         Boids.alignmentParameter = alignmentParameter;
-    }
-    static reset() {
+    };
+    Settings.reset = function () {
         Boid.size = Boid.defaultSize;
         Boids.initialBoidCount = Boids.defaultInitialBoidCount;
         Boids.maximumSpeed = Boids.defaultMaximumSpeed;
         Boids.cohesionParameter = Boids.defaultCohesionParameter;
         Boids.separationParameter = Boids.defaultSeparationParameter;
         Boids.alignmentParameter = Boids.defaultAlignmentParameter;
-    }
-    static save() {
+    };
+    Settings.save = function () {
         if (!window.localStorage)
             return false;
         window.localStorage.setItem(Settings.key, JSON.stringify(Settings.get()));
         return true;
-    }
-    static load() {
+    };
+    Settings.load = function () {
         if (!window.localStorage)
             return false;
         var jsonText = window.localStorage.getItem(Settings.key);
@@ -199,92 +218,98 @@ class Settings {
             return false;
         Settings.set(data.boidSize, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
         return true;
-    }
-}
-Settings.key = "ShoBoids";
-class Program {
-    constructor() {
+    };
+    Settings.key = "ShoBoids";
+    return Settings;
+}());
+var Program = /** @class */ (function () {
+    function Program() {
+        var _this = this;
         this.boids = new Boids();
         this.view = new View();
         this.appendTimer = 0;
         Settings.load();
-        setTimeout(() => this.initialize(), Program.startTime);
+        setTimeout(function () { return _this.initialize(); }, Program.startTime);
     }
-    initialize() {
+    Program.prototype.initialize = function () {
+        var _this = this;
         this.bindEvents();
         this.view.update();
         this.appendBoids(Boids.initialBoidCount);
-        setInterval(() => this.step(), 1000 / Program.fps);
+        setInterval(function () { return _this.step(); }, 1000 / Program.fps);
         Program.initializeForm();
-    }
-    bindEvents() {
-        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
-        this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
-        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
-        this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
-        window.addEventListener("resize", () => this.view.update());
-    }
-    static getMousePosition(element, e) {
+    };
+    Program.prototype.bindEvents = function () {
+        var _this = this;
+        this.view.canvas.addEventListener("mousedown", function (e) { return _this.appendBoids(1, Program.getMousePosition(_this.view.canvas, e)); });
+        this.view.canvas.addEventListener("touchstart", function (e) { return _this.appendBoids(1, Program.getTouchPosition(_this.view.canvas, e)); });
+        this.view.canvas.addEventListener("mouseup", function () { return clearInterval(_this.appendTimer); });
+        this.view.canvas.addEventListener("touchend", function () { return clearInterval(_this.appendTimer); });
+        window.addEventListener("resize", function () { return _this.view.update(); });
+    };
+    Program.getMousePosition = function (element, e) {
         var rect = element.getBoundingClientRect();
         return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
-    }
-    static getTouchPosition(element, e) {
+    };
+    Program.getTouchPosition = function (element, e) {
         var rect = element.getBoundingClientRect();
         var touch = e.changedTouches[0];
         return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
-    }
-    appendBoids(count, position) {
-        let index = 0;
-        this.appendTimer = setInterval(() => {
+    };
+    Program.prototype.appendBoids = function (count, position) {
+        var _this = this;
+        var index = 0;
+        this.appendTimer = setInterval(function () {
             if (count > 0 && index >= count) {
-                clearInterval(this.appendTimer);
+                clearInterval(_this.appendTimer);
                 return;
             }
-            this.boids.append(Program.createBoid(this.view.size, position));
+            _this.boids.append(Program.createBoid(_this.view.size, position));
             index++;
         }, Program.createTime);
-    }
-    static createBoid(areaSize, position) {
+    };
+    Program.createBoid = function (areaSize, position) {
         return new Boid(position || areaSize.innerProduct(new Vector2D(Math.random(), Math.random())), new Vector2D(), this.getRandomColor());
-    }
-    static getRandomColor() {
-        let colors = [0, 0, 0];
-        colors = colors.map(() => {
+    };
+    Program.getRandomColor = function () {
+        var colors = [0, 0, 0];
+        colors = colors.map(function () {
             return Math.round(Math.random() * 0xff);
         });
         return "rgba(" + String(colors[0]) + ", " + String(colors[1]) + ", " + String(colors[2]) + ", " + String(Math.random()) + ")";
-    }
-    step() {
+    };
+    Program.prototype.step = function () {
         this.view.drawBoids(this.boids);
         this.boids.move(this.view.size);
-    }
-    static onFormSubmit() {
-        let settingForm = document.settingForm;
+    };
+    Program.onFormSubmit = function () {
+        var settingForm = document.settingForm;
         Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
         Settings.save();
-    }
-    static onReset() {
+    };
+    Program.onReset = function () {
         Settings.reset();
         Settings.save();
         Program.initializeForm();
-    }
-    static initializeForm() {
-        let settings = Settings.get();
+    };
+    Program.initializeForm = function () {
+        var settings = Settings.get();
         Program.setToInput("boidSizeTextBox", settings.boidSize);
         Program.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
         Program.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
         Program.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
         Program.setToInput("separationParameterTextBox", settings.separationParameter);
         Program.setToInput("alignmentParameterTextBox", settings.alignmentParameter);
-    }
-    static setToInput(inputName, value) {
-        let elements = document.getElementsByName(inputName);
+    };
+    Program.setToInput = function (inputName, value) {
+        var elements = document.getElementsByName(inputName);
         if (elements.length > 0)
             (elements[0]).value = String(value);
-    }
-}
-Program.fps = 30;
-Program.createTime = 10;
-Program.startTime = 100;
-onload = () => new Program();
+    };
+    Program.fps = 30;
+    Program.createTime = 10;
+    Program.startTime = 100;
+    return Program;
+}());
+onload = function () { return new Program(); };
 //# sourceMappingURL=boids.js.map
