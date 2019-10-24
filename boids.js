@@ -63,7 +63,7 @@ class Boid {
         context.fill();
     }
 }
-Boid.defaultSize = 10;
+Boid.defaultSize = 5;
 Boid.size = Boid.defaultSize;
 class Boids {
     constructor() {
@@ -217,14 +217,21 @@ class Program {
         setInterval(() => this.step(), 1000 / Program.fps);
         Program.initializeForm();
     }
+    bindEvents() {
+        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
+        this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
+        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
+        this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
+        window.addEventListener("resize", () => this.view.update());
+    }
     static getMousePosition(element, e) {
         var rect = element.getBoundingClientRect();
         return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
     }
-    bindEvents() {
-        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
-        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
-        window.addEventListener("resize", () => this.view.update());
+    static getTouchPosition(element, e) {
+        var rect = element.getBoundingClientRect();
+        var touch = e.changedTouches[0];
+        return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
     }
     appendBoids(count, position) {
         let index = 0;

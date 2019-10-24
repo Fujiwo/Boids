@@ -52,7 +52,7 @@
 }
 
 class Boid {
-    static defaultSize = 10;
+    static defaultSize = 5;
     static size        = Boid.defaultSize;
 
     position     : Vector2D;
@@ -277,15 +277,23 @@ class Program {
         Program.initializeForm();
     }
 
+    private bindEvents(): void {
+        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
+        this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
+        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
+        this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
+        window.addEventListener("resize", () =>  this.view.update());
+    }
+
     private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
         var rect = element.getBoundingClientRect();
         return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
     }
 
-    private bindEvents(): void {
-        this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
-        this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
-        window.addEventListener("resize", () =>  this.view.update());
+    private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector2D {
+        var rect = element.getBoundingClientRect();
+        var touch = e.changedTouches[0];
+        return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
     }
 
     private appendBoids(count: number, position?: Vector2D): void {
