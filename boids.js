@@ -167,9 +167,10 @@ var View = /** @class */ (function () {
         this.context = this.canvas.getContext("2d");
     }
     View.prototype.update = function () {
+        var titleBar = document.getElementById("titleBar");
         var panel = document.getElementById("panel");
         this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (titleBar == null ? 0 : titleBar.clientHeight) - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     };
     View.prototype.drawBoids = function (boids) {
         this.drawAllBoid(boids.boids);

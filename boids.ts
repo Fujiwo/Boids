@@ -197,9 +197,10 @@ class View {
     }
 
     update(): void {
+        let titleBar = <HTMLHeadElement>document.getElementById("titleBar");
         let panel = <HTMLDivElement>document.getElementById("panel");
         this.size.x = this.canvas.width  = Math.round(window.innerWidth * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (titleBar == null ? 0 : titleBar.clientHeight) - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     }
 
     drawBoids(boids: Boids): void {
