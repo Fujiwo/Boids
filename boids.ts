@@ -57,7 +57,7 @@
 
 class Boid {
     static defaultSize                  = 5;
-    static defaultMaximumRandomDistance = 3;
+    static defaultMaximumRandomDistance = 2;
 
     static size                         = Boid.defaultSize;
     static maximumRandomDistance        = Boid.defaultMaximumRandomDistance;
@@ -107,10 +107,10 @@ class Boid {
 
 class Boids {
     static defaultInitialBoidCount     = 100;
-    static defaultMaximumSpeed         =   7;
+    static defaultMaximumSpeed         =   6;
     static defaultCohesionParameter    = 100;
     static defaultSeparationParameter  =  10;
-    static defaultAlignmentParameter   =   8;
+    static defaultAlignmentParameter   =   7;
 
     static initialBoidCount    = Boids.defaultInitialBoidCount   ;
     static maximumSpeed        = Boids.defaultMaximumSpeed       ;

@@ -87,7 +87,7 @@ var Boid = /** @class */ (function () {
         return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     };
     Boid.defaultSize = 5;
-    Boid.defaultMaximumRandomDistance = 3;
+    Boid.defaultMaximumRandomDistance = 2;
     Boid.size = Boid.defaultSize;
     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
     return Boid;
@@ -149,10 +149,10 @@ var Boids = /** @class */ (function () {
         boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
     };
     Boids.defaultInitialBoidCount = 100;
-    Boids.defaultMaximumSpeed = 7;
+    Boids.defaultMaximumSpeed = 6;
     Boids.defaultCohesionParameter = 100;
     Boids.defaultSeparationParameter = 10;
-    Boids.defaultAlignmentParameter = 8;
+    Boids.defaultAlignmentParameter = 7;
     Boids.initialBoidCount = Boids.defaultInitialBoidCount;
     Boids.maximumSpeed = Boids.defaultMaximumSpeed;
     Boids.cohesionParameter = Boids.defaultCohesionParameter;
