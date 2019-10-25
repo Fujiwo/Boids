@@ -113,16 +113,16 @@ class Boids {
     }
 
     move(size: Vector2D): void {
-        let sum = this.getSum(); // ToDo
-        let boidCount = this.boids.length; // ToDo
+        let sum = this.getSum();
+        let boidCount = this.boids.length;
 
         for (let index = 0; index < boidCount; index++) {
             let boid = this.boids[index];
             let speed = boid.speed;
 
-            this.cohesion(sum.position, boid); // ToDo
+            this.cohesion(sum.position, boid);
             this.separation(index);
-            this.alignment(sum.velocity, boid); // ToDo
+            this.alignment(sum.velocity, boid);
 
             if (speed >= Boids.maximumSpeed)
                 boid.velocity = boid.velocity.multiply(Boids.maximumSpeed / speed);
@@ -131,14 +131,12 @@ class Boids {
                 boid.velocity.x *= -1;
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
-
-            //boid.move(); // ToDo
         }
-        for (let index = 0; index < boidCount; index++) // ToDo
+        for (let index = 0; index < boidCount; index++)
             this.boids[index].move();
     }
 
-    private getSum() : Boid { // ToDo
+    private getSum() : Boid {
         let sum = new Boid();
         let boidCount = this.boids.length;
         for (let index = 0; index < boidCount; index++) {
@@ -148,20 +146,7 @@ class Boids {
         return sum;
     }
 
-    // private cohesion(index: number): void {
-    //     let center = new Vector2D();
-    //     let boidCount = this.boids.length;
-
-    //     for (let i = 0; i < boidCount; i++) {
-    //         if (i === index)
-    //             continue;
-    //         center.plusEqual(this.boids[i].position);
-    //     }
-    //     center.divideByEqual(boidCount - 1);
-    //     this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
-    // }
-
-    private cohesion(sum: Vector2D, boid: Boid): void { // ToDo
+    private cohesion(sum: Vector2D, boid: Boid): void {
         let center = sum.clone();
         center.minusEqual(boid.position);
         center.divideByEqual(this.boids.length - 1);
@@ -177,20 +162,7 @@ class Boids {
         }
     }
 
-    // private alignment(index: number): void {
-    //     let average = new Vector2D();
-    //     let boidCount = this.boids.length;
-
-    //     for (let i = 0; i < boidCount; i++) {
-    //         if (i === index)
-    //             continue;
-    //         average.plusEqual(this.boids[i].velocity);
-    //     }
-    //     average.divideByEqual(boidCount - 1);
-    //     this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
-    // }
-
-    private alignment(sum: Vector2D, boid: Boid): void { // ToDo
+    private alignment(sum: Vector2D, boid: Boid): void {
         let average = sum.clone();
         average.minusEqual(boid.velocity);
         average.divideByEqual(this.boids.length - 1);
