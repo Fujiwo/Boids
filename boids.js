@@ -84,7 +84,7 @@ var Boid = /** @class */ (function () {
         return new Vector2D(Boid.getRandomDistance(), Boid.getRandomDistance());
     };
     Boid.getRandomDistance = function () {
-        return Boid.maximumRandomDistance * 2 * Math.random() - Boid.maximumRandomDistance;
+        return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     };
     Boid.defaultSize = 5;
     Boid.defaultMaximumRandomDistance = 3;
@@ -114,9 +114,10 @@ var Boids = /** @class */ (function () {
                 boid.velocity.x *= -1;
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
+            boid.move();
         }
-        for (var index = 0; index < boidCount; index++)
-            this.boids[index].move();
+        // for (let index = 0; index < boidCount; index++)
+        //     this.boids[index].move();
     };
     Boids.prototype.getSum = function () {
         var sum = new Boid();

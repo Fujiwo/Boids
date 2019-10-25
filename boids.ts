@@ -101,7 +101,7 @@ class Boid {
     }
 
     private static getRandomDistance(): number {
-        return Boid.maximumRandomDistance * 2 * Math.random() - Boid.maximumRandomDistance;
+        return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     }
 }
 
@@ -143,9 +143,11 @@ class Boids {
                 boid.velocity.x *= -1;
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
+
+                boid.move();
         }
-        for (let index = 0; index < boidCount; index++)
-            this.boids[index].move();
+        // for (let index = 0; index < boidCount; index++)
+        //     this.boids[index].move();
     }
 
     private getSum() : Boid {
