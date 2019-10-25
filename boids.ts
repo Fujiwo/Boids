@@ -56,8 +56,11 @@
 }
 
 class Boid {
-    static defaultSize = 5;
-    static size        = Boid.defaultSize;
+    static defaultSize                  = 5;
+    static defaultMaximumRandomDistance = 3;
+
+    static size                         = Boid.defaultSize;
+    static maximumRandomDistance        = Boid.defaultMaximumRandomDistance;
 
     position     : Vector2D;
     velocity     : Vector2D;
@@ -78,6 +81,7 @@ class Boid {
     }
 
     move(): void {
+        this.velocity.plusEqual(Boid.getRandomVector());
         this.position.plusEqual(this.velocity);
     }
 
@@ -90,6 +94,14 @@ class Boid {
         context.beginPath();
         context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
         context.fill();
+    }
+
+    private static getRandomVector(): Vector2D {
+        return new Vector2D(Boid.getRandomDistance(), Boid.getRandomDistance());       
+    }
+
+    private static getRandomDistance(): number {
+        return Boid.maximumRandomDistance * 2 * Math.random() - Boid.maximumRandomDistance;
     }
 }
 
@@ -212,31 +224,34 @@ class Settings {
 
     static get() : any {
         return  {
-            boidSize           : Boid .size               ,
-            initialBoidCount   : Boids.initialBoidCount   ,
-            maximumSpeed       : Boids.maximumSpeed       ,
-            cohesionParameter  : Boids.cohesionParameter  ,
-            separationParameter: Boids.separationParameter,
+            boidSize           : Boid .size                 ,
+            randomParameter    : Boid .maximumRandomDistance,
+            initialBoidCount   : Boids.initialBoidCount     ,
+            maximumSpeed       : Boids.maximumSpeed         ,
+            cohesionParameter  : Boids.cohesionParameter    ,
+            separationParameter: Boids.separationParameter  ,
             alignmentParameter : Boids.alignmentParameter
         };
     }
 
-    static set(boidSize: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-        Boid .size                = boidSize           ;
-        Boids.initialBoidCount    = initialBoidCount   ;
-        Boids.maximumSpeed        = maximumSpeed       ;
-        Boids.cohesionParameter   = cohesionParameter  ;
-        Boids.separationParameter = separationParameter;
-        Boids.alignmentParameter  = alignmentParameter ;
+    static set(boidSize: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
+        Boid .size                  = boidSize           ;
+        Boid .maximumRandomDistance = randomParameter    ;
+        Boids.initialBoidCount      = initialBoidCount   ;
+        Boids.maximumSpeed          = maximumSpeed       ;
+        Boids.cohesionParameter     = cohesionParameter  ;
+        Boids.separationParameter   = separationParameter;
+        Boids.alignmentParameter    = alignmentParameter ;
     }
 
     static reset(): void {
-        Boid .size                = Boid .defaultSize               ;
-        Boids.initialBoidCount    = Boids.defaultInitialBoidCount   ;
-        Boids.maximumSpeed        = Boids.defaultMaximumSpeed       ;
-        Boids.cohesionParameter   = Boids.defaultCohesionParameter  ;
-        Boids.separationParameter = Boids.defaultSeparationParameter;
-        Boids.alignmentParameter  = Boids.defaultAlignmentParameter ;
+        Boid .size                  = Boid .defaultSize                 ;
+        Boid .maximumRandomDistance = Boid .defaultMaximumRandomDistance;
+        Boids.initialBoidCount      = Boids.defaultInitialBoidCount     ;
+        Boids.maximumSpeed          = Boids.defaultMaximumSpeed         ;
+        Boids.cohesionParameter     = Boids.defaultCohesionParameter    ;
+        Boids.separationParameter   = Boids.defaultSeparationParameter  ;
+        Boids.alignmentParameter    = Boids.defaultAlignmentParameter   ;
     }
 
     static save(): boolean {
@@ -255,7 +270,7 @@ class Settings {
         var data = JSON.parse(jsonText);
         if (data == null)
             return false;
-        Settings.set(data.boidSize, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
+        Settings.set(data.boidSize, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
         return true;
     }
 }
@@ -334,6 +349,7 @@ class Program {
         let settingForm = (<any>document).settingForm;
         Settings.set(
             Number(settingForm.boidSizeTextBox           .value),
+            Number(settingForm.randomParameterTextBox    .value),
             Number(settingForm.initialBoidCountTextBox   .value),
             Number(settingForm.maximumSpeedTextBox       .value),
             Number(settingForm.cohesionParameterTextBox  .value),
@@ -352,6 +368,7 @@ class Program {
     private static initializeForm(): void {
         let settings = Settings.get();
         Program.setToInput("boidSizeTextBox"           , settings.boidSize           );
+        Program.setToInput("randomParameterTextBox"    , settings.randomParameter    );
         Program.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
         Program.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
         Program.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );

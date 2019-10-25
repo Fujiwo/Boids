@@ -68,6 +68,7 @@ var Boid = /** @class */ (function () {
         Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
     };
     Boid.prototype.move = function () {
+        this.velocity.plusEqual(Boid.getRandomVector());
         this.position.plusEqual(this.velocity);
     };
     Boid.prototype.getDistance = function (another) {
@@ -79,8 +80,16 @@ var Boid = /** @class */ (function () {
         context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
         context.fill();
     };
+    Boid.getRandomVector = function () {
+        return new Vector2D(Boid.getRandomDistance(), Boid.getRandomDistance());
+    };
+    Boid.getRandomDistance = function () {
+        return Boid.maximumRandomDistance * 2 * Math.random() - Boid.maximumRandomDistance;
+    };
     Boid.defaultSize = 5;
+    Boid.defaultMaximumRandomDistance = 3;
     Boid.size = Boid.defaultSize;
+    Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
     return Boid;
 }());
 var Boids = /** @class */ (function () {
@@ -91,23 +100,22 @@ var Boids = /** @class */ (function () {
         this.boids.push(boid);
     };
     Boids.prototype.move = function (size) {
-        var sum = this.getSum(); // ToDo
-        var boidCount = this.boids.length; // ToDo
+        var sum = this.getSum();
+        var boidCount = this.boids.length;
         for (var index = 0; index < boidCount; index++) {
             var boid = this.boids[index];
             var speed = boid.speed;
-            this.cohesion(sum.position, boid); // ToDo
+            this.cohesion(sum.position, boid);
             this.separation(index);
-            this.alignment(sum.velocity, boid); // ToDo
+            this.alignment(sum.velocity, boid);
             if (speed >= Boids.maximumSpeed)
                 boid.velocity = boid.velocity.multiply(Boids.maximumSpeed / speed);
             if (boid.position.x < 0 && boid.velocity.x < 0 || boid.position.x > size.x && boid.velocity.x > 0)
                 boid.velocity.x *= -1;
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
-            //boid.move(); // ToDo
         }
-        for (var index = 0; index < boidCount; index++) // ToDo
+        for (var index = 0; index < boidCount; index++)
             this.boids[index].move();
     };
     Boids.prototype.getSum = function () {
@@ -119,17 +127,6 @@ var Boids = /** @class */ (function () {
         }
         return sum;
     };
-    // private cohesion(index: number): void {
-    //     let center = new Vector2D();
-    //     let boidCount = this.boids.length;
-    //     for (let i = 0; i < boidCount; i++) {
-    //         if (i === index)
-    //             continue;
-    //         center.plusEqual(this.boids[i].position);
-    //     }
-    //     center.divideByEqual(boidCount - 1);
-    //     this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
-    // }
     Boids.prototype.cohesion = function (sum, boid) {
         var center = sum.clone();
         center.minusEqual(boid.position);
@@ -144,17 +141,6 @@ var Boids = /** @class */ (function () {
                 this.boids[index].velocity.minusEqual(this.boids[i].position.minus(this.boids[index].position));
         }
     };
-    // private alignment(index: number): void {
-    //     let average = new Vector2D();
-    //     let boidCount = this.boids.length;
-    //     for (let i = 0; i < boidCount; i++) {
-    //         if (i === index)
-    //             continue;
-    //         average.plusEqual(this.boids[i].velocity);
-    //     }
-    //     average.divideByEqual(boidCount - 1);
-    //     this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
-    // }
     Boids.prototype.alignment = function (sum, boid) {
         var average = sum.clone();
         average.minusEqual(boid.velocity);
@@ -207,6 +193,7 @@ var Settings = /** @class */ (function () {
     Settings.get = function () {
         return {
             boidSize: Boid.size,
+            randomParameter: Boid.maximumRandomDistance,
             initialBoidCount: Boids.initialBoidCount,
             maximumSpeed: Boids.maximumSpeed,
             cohesionParameter: Boids.cohesionParameter,
@@ -214,8 +201,9 @@ var Settings = /** @class */ (function () {
             alignmentParameter: Boids.alignmentParameter
         };
     };
-    Settings.set = function (boidSize, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
+    Settings.set = function (boidSize, randomParameter, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
         Boid.size = boidSize;
+        Boid.maximumRandomDistance = randomParameter;
         Boids.initialBoidCount = initialBoidCount;
         Boids.maximumSpeed = maximumSpeed;
         Boids.cohesionParameter = cohesionParameter;
@@ -224,6 +212,7 @@ var Settings = /** @class */ (function () {
     };
     Settings.reset = function () {
         Boid.size = Boid.defaultSize;
+        Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
         Boids.initialBoidCount = Boids.defaultInitialBoidCount;
         Boids.maximumSpeed = Boids.defaultMaximumSpeed;
         Boids.cohesionParameter = Boids.defaultCohesionParameter;
@@ -245,7 +234,7 @@ var Settings = /** @class */ (function () {
         var data = JSON.parse(jsonText);
         if (data == null)
             return false;
-        Settings.set(data.boidSize, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
+        Settings.set(data.boidSize, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
         return true;
     };
     Settings.key = "ShoBoids";
@@ -313,7 +302,7 @@ var Program = /** @class */ (function () {
     };
     Program.onFormSubmit = function () {
         var settingForm = document.settingForm;
-        Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
+        Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
         Settings.save();
     };
     Program.onReset = function () {
@@ -324,6 +313,7 @@ var Program = /** @class */ (function () {
     Program.initializeForm = function () {
         var settings = Settings.get();
         Program.setToInput("boidSizeTextBox", settings.boidSize);
+        Program.setToInput("randomParameterTextBox", settings.randomParameter);
         Program.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
         Program.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
         Program.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
