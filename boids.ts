@@ -11,6 +11,10 @@
         this.y = y;
     }
 
+    clone(): Vector2D {
+        return new Vector2D(this.x, this.y);
+    }
+
     plus(another: Vector2D): Vector2D {
         return new Vector2D(this.x + another.x, this.y + another.y);
     }
@@ -109,13 +113,16 @@ class Boids {
     }
 
     move(size: Vector2D): void {
-        for (let index = 0, length = this.boids.length; index < length; index++) {
+        let sum = this.getSum(); // ToDo
+        let boidCount = this.boids.length; // ToDo
+
+        for (let index = 0; index < boidCount; index++) {
             let boid = this.boids[index];
             let speed = boid.speed;
 
-            this.cohesion(index);
+            this.cohesion(sum.position, boid); // ToDo
             this.separation(index);
-            this.alignment(index);
+            this.alignment(sum.velocity, boid); // ToDo
 
             if (speed >= Boids.maximumSpeed)
                 boid.velocity = boid.velocity.multiply(Boids.maximumSpeed / speed);
@@ -125,21 +132,40 @@ class Boids {
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
 
-            boid.move();
+            //boid.move(); // ToDo
         }
+        for (let index = 0; index < boidCount; index++) // ToDo
+            this.boids[index].move();
     }
 
-    private cohesion(index: number): void {
-        let center = new Vector2D();
+    private getSum() : Boid { // ToDo
+        let sum = new Boid();
         let boidCount = this.boids.length;
-
-        for (let i = 0; i < boidCount; i++) {
-            if (i === index)
-                continue;
-            center.plusEqual(this.boids[i].position);
+        for (let index = 0; index < boidCount; index++) {
+            sum.position.plusEqual(this.boids[index].position);
+            sum.velocity.plusEqual(this.boids[index].velocity);
         }
-        center.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
+        return sum;
+    }
+
+    // private cohesion(index: number): void {
+    //     let center = new Vector2D();
+    //     let boidCount = this.boids.length;
+
+    //     for (let i = 0; i < boidCount; i++) {
+    //         if (i === index)
+    //             continue;
+    //         center.plusEqual(this.boids[i].position);
+    //     }
+    //     center.divideByEqual(boidCount - 1);
+    //     this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
+    // }
+
+    private cohesion(sum: Vector2D, boid: Boid): void { // ToDo
+        let center = sum.clone();
+        center.minusEqual(boid.position);
+        center.divideByEqual(this.boids.length - 1);
+        boid.velocity.plusEqual(center.minus(boid.position).divideBy(Boids.cohesionParameter));
     }
 
     private separation(index: number): void {
@@ -151,31 +177,37 @@ class Boids {
         }
     }
 
-    private alignment(index: number): void {
-        let average = new Vector2D();
-        let boidCount = this.boids.length;
+    // private alignment(index: number): void {
+    //     let average = new Vector2D();
+    //     let boidCount = this.boids.length;
 
-        for (let i = 0; i < boidCount; i++) {
-            if (i === index)
-                continue;
-            average.plusEqual(this.boids[i].velocity);
-        }
-        average.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
+    //     for (let i = 0; i < boidCount; i++) {
+    //         if (i === index)
+    //             continue;
+    //         average.plusEqual(this.boids[i].velocity);
+    //     }
+    //     average.divideByEqual(boidCount - 1);
+    //     this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
+    // }
+
+    private alignment(sum: Vector2D, boid: Boid): void { // ToDo
+        let average = sum.clone();
+        average.minusEqual(boid.velocity);
+        average.divideByEqual(this.boids.length - 1);
+        boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
     }
 }
 
 class View {
-    static sizeRate: number = 0.98;
+    static sizeRate: number = 0.95;
 
     canvas         : HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    size           : Vector2D;
+    size  = new Vector2D();
 
     constructor() {
         this.canvas = <HTMLCanvasElement>document.querySelector("#canvas");
         this.context = <CanvasRenderingContext2D>this.canvas.getContext("2d");
-        this.size = new Vector2D();
     }
 
     update(): void {

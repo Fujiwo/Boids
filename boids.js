@@ -13,6 +13,9 @@ var Vector2D = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Vector2D.prototype.clone = function () {
+        return new Vector2D(this.x, this.y);
+    };
     Vector2D.prototype.plus = function (another) {
         return new Vector2D(this.x + another.x, this.y + another.y);
     };
@@ -88,50 +91,75 @@ var Boids = /** @class */ (function () {
         this.boids.push(boid);
     };
     Boids.prototype.move = function (size) {
-        for (var index = 0, length_1 = this.boids.length; index < length_1; index++) {
+        var sum = this.getSum(); // ToDo
+        var boidCount = this.boids.length; // ToDo
+        for (var index = 0; index < boidCount; index++) {
             var boid = this.boids[index];
             var speed = boid.speed;
-            this.cohesion(index);
+            this.cohesion(sum.position, boid); // ToDo
             this.separation(index);
-            this.alignment(index);
+            this.alignment(sum.velocity, boid); // ToDo
             if (speed >= Boids.maximumSpeed)
                 boid.velocity = boid.velocity.multiply(Boids.maximumSpeed / speed);
             if (boid.position.x < 0 && boid.velocity.x < 0 || boid.position.x > size.x && boid.velocity.x > 0)
                 boid.velocity.x *= -1;
             if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                 boid.velocity.y *= -1;
-            boid.move();
+            //boid.move(); // ToDo
         }
+        for (var index = 0; index < boidCount; index++) // ToDo
+            this.boids[index].move();
     };
-    Boids.prototype.cohesion = function (index) {
-        var center = new Vector2D();
+    Boids.prototype.getSum = function () {
+        var sum = new Boid();
         var boidCount = this.boids.length;
-        for (var i = 0; i < boidCount; i++) {
-            if (i === index)
-                continue;
-            center.plusEqual(this.boids[i].position);
+        for (var index = 0; index < boidCount; index++) {
+            sum.position.plusEqual(this.boids[index].position);
+            sum.velocity.plusEqual(this.boids[index].velocity);
         }
-        center.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
+        return sum;
+    };
+    // private cohesion(index: number): void {
+    //     let center = new Vector2D();
+    //     let boidCount = this.boids.length;
+    //     for (let i = 0; i < boidCount; i++) {
+    //         if (i === index)
+    //             continue;
+    //         center.plusEqual(this.boids[i].position);
+    //     }
+    //     center.divideByEqual(boidCount - 1);
+    //     this.boids[index].velocity.plusEqual(center.minus(this.boids[index].position).divideBy(Boids.cohesionParameter));
+    // }
+    Boids.prototype.cohesion = function (sum, boid) {
+        var center = sum.clone();
+        center.minusEqual(boid.position);
+        center.divideByEqual(this.boids.length - 1);
+        boid.velocity.plusEqual(center.minus(boid.position).divideBy(Boids.cohesionParameter));
     };
     Boids.prototype.separation = function (index) {
-        for (var i = 0, length_2 = this.boids.length; i < length_2; i++) {
+        for (var i = 0, length_1 = this.boids.length; i < length_1; i++) {
             if (i === index)
                 continue;
             if (this.boids[i].getDistance(this.boids[index]) < Boids.separationParameter)
                 this.boids[index].velocity.minusEqual(this.boids[i].position.minus(this.boids[index].position));
         }
     };
-    Boids.prototype.alignment = function (index) {
-        var average = new Vector2D();
-        var boidCount = this.boids.length;
-        for (var i = 0; i < boidCount; i++) {
-            if (i === index)
-                continue;
-            average.plusEqual(this.boids[i].velocity);
-        }
-        average.divideByEqual(boidCount - 1);
-        this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
+    // private alignment(index: number): void {
+    //     let average = new Vector2D();
+    //     let boidCount = this.boids.length;
+    //     for (let i = 0; i < boidCount; i++) {
+    //         if (i === index)
+    //             continue;
+    //         average.plusEqual(this.boids[i].velocity);
+    //     }
+    //     average.divideByEqual(boidCount - 1);
+    //     this.boids[index].velocity.plusEqual(average.minus(this.boids[index].velocity).divideBy(Boids.alignmentParameter));
+    // }
+    Boids.prototype.alignment = function (sum, boid) {
+        var average = sum.clone();
+        average.minusEqual(boid.velocity);
+        average.divideByEqual(this.boids.length - 1);
+        boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
     };
     Boids.defaultInitialBoidCount = 100;
     Boids.defaultMaximumSpeed = 7;
@@ -147,9 +175,9 @@ var Boids = /** @class */ (function () {
 }());
 var View = /** @class */ (function () {
     function View() {
+        this.size = new Vector2D();
         this.canvas = document.querySelector("#canvas");
         this.context = this.canvas.getContext("2d");
-        this.size = new Vector2D();
     }
     View.prototype.update = function () {
         var panel = document.getElementById("panel");
@@ -161,7 +189,7 @@ var View = /** @class */ (function () {
     };
     View.prototype.drawAllBoid = function (boids) {
         this.context.clearRect(0, 0, this.size.x, this.size.y);
-        for (var index = 0, length_3 = boids.length; index < length_3; index++)
+        for (var index = 0, length_2 = boids.length; index < length_2; index++)
             boids[index].draw(this.context);
         this.drawCount(boids.length);
     };
@@ -170,7 +198,7 @@ var View = /** @class */ (function () {
         this.context.font = "14px";
         this.context.fillText("Boids: " + String(count), 20, 20);
     };
-    View.sizeRate = 0.9;
+    View.sizeRate = 0.95;
     return View;
 }());
 var Settings = /** @class */ (function () {
