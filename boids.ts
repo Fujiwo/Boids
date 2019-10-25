@@ -106,7 +106,7 @@ class Boid {
 }
 
 class Boids {
-    static defaultInitialBoidCount     = 100;
+    static defaultInitialBoidCount     = 250;
     static defaultMaximumSpeed         =   6;
     static defaultCohesionParameter    = 100;
     static defaultSeparationParameter  =  10;

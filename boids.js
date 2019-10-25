@@ -148,7 +148,7 @@ var Boids = /** @class */ (function () {
         average.divideByEqual(this.boids.length - 1);
         boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
     };
-    Boids.defaultInitialBoidCount = 100;
+    Boids.defaultInitialBoidCount = 250;
     Boids.defaultMaximumSpeed = 6;
     Boids.defaultCohesionParameter = 100;
     Boids.defaultSeparationParameter = 10;
