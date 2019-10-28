@@ -56,7 +56,7 @@
 }
 
 class Boid {
-    static defaultSize                  = 5;
+    static defaultSize                  = 4;
     static defaultMaximumRandomDistance = 2;
 
     static size                         = Boid.defaultSize;
@@ -77,7 +77,8 @@ class Boid {
     }
 
     draw(context: CanvasRenderingContext2D): void {
-        Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
+        //Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
+        this.drawShape(context, this.position, Boid.size, this.color);
     }
 
     move(): void {
@@ -89,10 +90,32 @@ class Boid {
         return this.position.getDistance(another.position);
     }
 
-    private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
+    // private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
+    //     context.fillStyle = color;
+    //     context.beginPath();
+    //     context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
+    //     context.fill();
+    // }
+
+    private drawShape(context: CanvasRenderingContext2D, center: Vector2D, size: number, color: string) {
+        let halfVelocity = this.velocity.multiply(size / 2);
+        let point1       = this.position.plus(halfVelocity);
+        let middlePoint  = this.position.minus(halfVelocity);
+        let unitVelocity = this.velocity.multiply(size / this.velocity.absoluteValue);
+        let point2       = middlePoint.plus(new Vector2D( unitVelocity.y, -unitVelocity.x));
+        let point3       = middlePoint.plus(new Vector2D(-unitVelocity.y,  unitVelocity.x));
+        Boid.drawPolygon(context, [point1, point2, point3], color);
+    }
+
+    private static drawPolygon(context: CanvasRenderingContext2D, polygon: Vector2D[], color: string) {
+        let polygonLength = polygon.length;
+        if (polygonLength < 2)
+            return;
         context.fillStyle = color;
         context.beginPath();
-        context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
+        context.moveTo(polygon[0].x, polygon[0].y);
+        for (let index = 1; index < polygonLength; index++)
+            context.lineTo(polygon[index].x, polygon[index].y);
         context.fill();
     }
 
@@ -107,7 +130,7 @@ class Boid {
 
 class Boids {
     static defaultInitialBoidCount     = 250;
-    static defaultMaximumSpeed         =   6;
+    static defaultMaximumSpeed         =   8;
     static defaultCohesionParameter    = 100;
     static defaultSeparationParameter  =  10;
     static defaultAlignmentParameter   =   7;
@@ -282,6 +305,9 @@ class Program {
     private static fps              =  30;
     private static createTime       =  10;
     private static startTime        = 100;
+    private static colorValueBase   = 0xa0; // 0x00~0xff
+    private static opacityBase1     = 0.40; // 0.0~opacityBase2
+    private static opacityBase2     = 0.60; // opacityBase1~1.0
 
     private boids = new Boids();
     private view = new View();
@@ -335,12 +361,16 @@ class Program {
         return new Boid(position || areaSize.innerProduct(new Vector2D(Math.random(), Math.random())), new Vector2D(), this.getRandomColor());
     }
 
-    private static getRandomColor() {
-        let colors = [0, 0, 0];
-        colors = colors.map(() => {
-            return Math.round(Math.random() * 0xff);
-        });
-        return "rgba(" + String(colors[0]) + ", " + String(colors[1]) + ", " + String(colors[2]) + ", " + String(Math.random()) + ")";
+    private static getRandomColor(): string {
+        return "rgba(" + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getOpactiy()) + ")";
+    }
+
+    private static getRandomColorValue(): number {
+        return Math.round(Math.random() * Program.colorValueBase);
+    }
+
+    private static getOpactiy(): number {
+        return Math.round(Math.random() * (Program.opacityBase2 - Program.opacityBase1) + Program.opacityBase1);
     }
 
     private step(): void {

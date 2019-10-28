@@ -65,7 +65,8 @@ var Boid = /** @class */ (function () {
         configurable: true
     });
     Boid.prototype.draw = function (context) {
-        Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
+        //Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
+        this.drawShape(context, this.position, Boid.size, this.color);
     };
     Boid.prototype.move = function () {
         this.velocity.plusEqual(Boid.getRandomVector());
@@ -74,10 +75,30 @@ var Boid = /** @class */ (function () {
     Boid.prototype.getDistance = function (another) {
         return this.position.getDistance(another.position);
     };
-    Boid.drawCircle = function (context, center, radius, color) {
+    // private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
+    //     context.fillStyle = color;
+    //     context.beginPath();
+    //     context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
+    //     context.fill();
+    // }
+    Boid.prototype.drawShape = function (context, center, size, color) {
+        var halfVelocity = this.velocity.multiply(size / 2);
+        var point1 = this.position.plus(halfVelocity);
+        var middlePoint = this.position.minus(halfVelocity);
+        var unitVelocity = this.velocity.multiply(size / this.velocity.absoluteValue);
+        var point2 = middlePoint.plus(new Vector2D(unitVelocity.y, -unitVelocity.x));
+        var point3 = middlePoint.plus(new Vector2D(-unitVelocity.y, unitVelocity.x));
+        Boid.drawPolygon(context, [point1, point2, point3], color);
+    };
+    Boid.drawPolygon = function (context, polygon, color) {
+        var polygonLength = polygon.length;
+        if (polygonLength < 2)
+            return;
         context.fillStyle = color;
         context.beginPath();
-        context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
+        context.moveTo(polygon[0].x, polygon[0].y);
+        for (var index = 1; index < polygonLength; index++)
+            context.lineTo(polygon[index].x, polygon[index].y);
         context.fill();
     };
     Boid.getRandomVector = function () {
@@ -86,7 +107,7 @@ var Boid = /** @class */ (function () {
     Boid.getRandomDistance = function () {
         return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     };
-    Boid.defaultSize = 5;
+    Boid.defaultSize = 4;
     Boid.defaultMaximumRandomDistance = 2;
     Boid.size = Boid.defaultSize;
     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
@@ -149,7 +170,7 @@ var Boids = /** @class */ (function () {
         boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
     };
     Boids.defaultInitialBoidCount = 250;
-    Boids.defaultMaximumSpeed = 6;
+    Boids.defaultMaximumSpeed = 8;
     Boids.defaultCohesionParameter = 100;
     Boids.defaultSeparationParameter = 10;
     Boids.defaultAlignmentParameter = 7;
@@ -292,11 +313,13 @@ var Program = /** @class */ (function () {
         return new Boid(position || areaSize.innerProduct(new Vector2D(Math.random(), Math.random())), new Vector2D(), this.getRandomColor());
     };
     Program.getRandomColor = function () {
-        var colors = [0, 0, 0];
-        colors = colors.map(function () {
-            return Math.round(Math.random() * 0xff);
-        });
-        return "rgba(" + String(colors[0]) + ", " + String(colors[1]) + ", " + String(colors[2]) + ", " + String(Math.random()) + ")";
+        return "rgba(" + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getOpactiy()) + ")";
+    };
+    Program.getRandomColorValue = function () {
+        return Math.round(Math.random() * Program.colorValueBase);
+    };
+    Program.getOpactiy = function () {
+        return Math.round(Math.random() * (Program.opacityBase2 - Program.opacityBase1) + Program.opacityBase1);
     };
     Program.prototype.step = function () {
         this.view.drawBoids(this.boids);
@@ -330,6 +353,9 @@ var Program = /** @class */ (function () {
     Program.fps = 30;
     Program.createTime = 10;
     Program.startTime = 100;
+    Program.colorValueBase = 0xa0; // 0x00~0xff
+    Program.opacityBase1 = 0.40; // 0.0~opacityBase2
+    Program.opacityBase2 = 0.60; // opacityBase1~1.0
     return Program;
 }());
 onload = function () { return new Program(); };
