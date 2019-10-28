@@ -65,7 +65,6 @@ var Boid = /** @class */ (function () {
         configurable: true
     });
     Boid.prototype.draw = function (context) {
-        //Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
         this.drawShape(context, this.position, Boid.size, this.color);
     };
     Boid.prototype.move = function () {
@@ -75,12 +74,6 @@ var Boid = /** @class */ (function () {
     Boid.prototype.getDistance = function (another) {
         return this.position.getDistance(another.position);
     };
-    // private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
-    //     context.fillStyle = color;
-    //     context.beginPath();
-    //     context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
-    //     context.fill();
-    // }
     Boid.prototype.drawShape = function (context, center, size, color) {
         var halfVelocity = this.velocity.multiply(size / 2);
         var point1 = this.position.plus(halfVelocity);
@@ -137,8 +130,6 @@ var Boids = /** @class */ (function () {
                 boid.velocity.y *= -1;
             boid.move();
         }
-        // for (let index = 0; index < boidCount; index++)
-        //     this.boids[index].move();
     };
     Boids.prototype.getSum = function () {
         var sum = new Boid();
@@ -188,10 +179,9 @@ var View = /** @class */ (function () {
         this.context = this.canvas.getContext("2d");
     }
     View.prototype.update = function () {
-        var titleBar = document.getElementById("titleBar");
         var panel = document.getElementById("panel");
         this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round((window.innerHeight - (titleBar == null ? 0 : titleBar.clientHeight) - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     };
     View.prototype.drawBoids = function (boids) {
         this.drawAllBoid(boids.boids);

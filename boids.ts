@@ -77,7 +77,6 @@ class Boid {
     }
 
     draw(context: CanvasRenderingContext2D): void {
-        //Boid.drawCircle(context, this.position, Boid.size / 2, this.color);
         this.drawShape(context, this.position, Boid.size, this.color);
     }
 
@@ -89,13 +88,6 @@ class Boid {
     getDistance(another: Boid): number {
         return this.position.getDistance(another.position);
     }
-
-    // private static drawCircle(context: CanvasRenderingContext2D, center: Vector2D, radius: number, color: string) {
-    //     context.fillStyle = color;
-    //     context.beginPath();
-    //     context.arc(center.x, center.y, radius, 0, Math.PI * 2, false);
-    //     context.fill();
-    // }
 
     private drawShape(context: CanvasRenderingContext2D, center: Vector2D, size: number, color: string) {
         let halfVelocity = this.velocity.multiply(size / 2);
@@ -169,8 +161,6 @@ class Boids {
 
                 boid.move();
         }
-        // for (let index = 0; index < boidCount; index++)
-        //     this.boids[index].move();
     }
 
     private getSum() : Boid {
@@ -220,10 +210,9 @@ class View {
     }
 
     update(): void {
-        let titleBar = <HTMLHeadElement>document.getElementById("titleBar");
         let panel = <HTMLDivElement>document.getElementById("panel");
         this.size.x = this.canvas.width  = Math.round(window.innerWidth * View.sizeRate);
-        this.size.y = this.canvas.height = Math.round((window.innerHeight - (titleBar == null ? 0 : titleBar.clientHeight) - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+        this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
     }
 
     drawBoids(boids: Boids): void {
