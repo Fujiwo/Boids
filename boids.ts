@@ -56,7 +56,7 @@
 }
 
 class Boid {
-    static defaultSize                  = 4;
+    static defaultSize                  = 3;
     static defaultMaximumRandomDistance = 2;
 
     static size                         = Boid.defaultSize;
