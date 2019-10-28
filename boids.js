@@ -107,7 +107,7 @@ var Boid = /** @class */ (function () {
     Boid.getRandomDistance = function () {
         return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     };
-    Boid.defaultSize = 4;
+    Boid.defaultSize = 3;
     Boid.defaultMaximumRandomDistance = 2;
     Boid.size = Boid.defaultSize;
     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
