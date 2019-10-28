@@ -78,7 +78,8 @@ var Boid = /** @class */ (function () {
         var halfVelocity = this.velocity.multiply(size / 2);
         var point1 = this.position.plus(halfVelocity);
         var middlePoint = this.position.minus(halfVelocity);
-        var unitVelocity = this.velocity.multiply(size / this.velocity.absoluteValue);
+        var velocityAbsoluteValue = this.velocity.absoluteValue;
+        var unitVelocity = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
         var point2 = middlePoint.plus(new Vector2D(unitVelocity.y, -unitVelocity.x));
         var point3 = middlePoint.plus(new Vector2D(-unitVelocity.y, unitVelocity.x));
         Boid.drawPolygon(context, [point1, point2, point3], color);
@@ -100,7 +101,7 @@ var Boid = /** @class */ (function () {
     Boid.getRandomDistance = function () {
         return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
     };
-    Boid.defaultSize = 3;
+    Boid.defaultSize = 4;
     Boid.defaultMaximumRandomDistance = 2;
     Boid.size = Boid.defaultSize;
     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;

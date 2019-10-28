@@ -56,7 +56,7 @@
 }
 
 class Boid {
-    static defaultSize                  = 3;
+    static defaultSize                  = 4;
     static defaultMaximumRandomDistance = 2;
 
     static size                         = Boid.defaultSize;
@@ -90,12 +90,13 @@ class Boid {
     }
 
     private drawShape(context: CanvasRenderingContext2D, center: Vector2D, size: number, color: string) {
-        let halfVelocity = this.velocity.multiply(size / 2);
-        let point1       = this.position.plus(halfVelocity);
-        let middlePoint  = this.position.minus(halfVelocity);
-        let unitVelocity = this.velocity.multiply(size / this.velocity.absoluteValue);
-        let point2       = middlePoint.plus(new Vector2D( unitVelocity.y, -unitVelocity.x));
-        let point3       = middlePoint.plus(new Vector2D(-unitVelocity.y,  unitVelocity.x));
+        let halfVelocity          = this.velocity.multiply(size / 2);
+        let point1                = this.position.plus(halfVelocity);
+        let middlePoint           = this.position.minus(halfVelocity);
+        let velocityAbsoluteValue = this.velocity.absoluteValue;
+        let unitVelocity          = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
+        let point2                = middlePoint.plus(new Vector2D( unitVelocity.y, -unitVelocity.x));
+        let point3                = middlePoint.plus(new Vector2D(-unitVelocity.y,  unitVelocity.x));
         Boid.drawPolygon(context, [point1, point2, point3], color);
     }
 
