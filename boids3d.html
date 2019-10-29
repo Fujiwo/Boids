@@ -56,8 +56,8 @@
                     <label>separation parameter:</label> <input type="number" name="separationParameterTextBox">
                     <label>alignment parameter:</label> <input type="number" name="alignmentParameterTextBox">
                     <label>random parameter:</label> <input type="number" name="randomParameterTextBox">
-                    <input type="button" value="submit" onclick="Program.onFormSubmit()">
-                    <input type="button" value="reset" onclick="Program.onReset()">
+                    <input id="submitButton" type="button" value="submit">
+                    <input id="resetButton" type="button" value="reset">
                 </form>
             </div>
         </div>
@@ -74,7 +74,8 @@
             </ul>
         </p>
     </nav>
-    <script src="boids3d.min.js"></script>
+    <script src="boids3d.js"></script>
+    <!-- <script src="boids3d.min.js"></script> -->
     <!-- <script></script> -->
 </body>
 </html>

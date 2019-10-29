@@ -286,6 +286,44 @@ var Shos;
                 Settings.key = "ShoBoids";
                 return Settings;
             }());
+            var SettingsPanel = /** @class */ (function () {
+                function SettingsPanel() {
+                }
+                SettingsPanel.initialize = function () {
+                    SettingsPanel.initializeHandlers();
+                    SettingsPanel.initializeForm();
+                };
+                SettingsPanel.initializeHandlers = function () {
+                    document.getElementById("submitButton").onclick = SettingsPanel.onFormSubmit;
+                    document.getElementById("resetButton").onclick = SettingsPanel.onReset;
+                };
+                SettingsPanel.onFormSubmit = function () {
+                    var settingForm = document.settingForm;
+                    Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
+                    Settings.save();
+                };
+                SettingsPanel.onReset = function () {
+                    Settings.reset();
+                    Settings.save();
+                    SettingsPanel.initializeForm();
+                };
+                SettingsPanel.initializeForm = function () {
+                    var settings = Settings.get();
+                    SettingsPanel.setToInput("boidSizeTextBox", settings.boidSize);
+                    SettingsPanel.setToInput("randomParameterTextBox", settings.randomParameter);
+                    SettingsPanel.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
+                    SettingsPanel.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
+                    SettingsPanel.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
+                    SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
+                    SettingsPanel.setToInput("alignmentParameterTextBox", settings.alignmentParameter);
+                };
+                SettingsPanel.setToInput = function (inputName, value) {
+                    var elements = document.getElementsByName(inputName);
+                    if (elements.length > 0)
+                        (elements[0]).value = String(value);
+                };
+                return SettingsPanel;
+            }());
             var Program = /** @class */ (function () {
                 function Program() {
                     var _this = this;
@@ -301,7 +339,7 @@ var Shos;
                     this.view.update();
                     this.appendBoids(Boids.initialBoidCount);
                     setInterval(function () { return _this.step(); }, 1000 / Program.fps);
-                    Program.initializeForm();
+                    SettingsPanel.initialize();
                 };
                 Program.prototype.bindEvents = function () {
                     var _this = this;
@@ -347,31 +385,6 @@ var Shos;
                 Program.prototype.step = function () {
                     this.view.drawBoids(this.boids);
                     this.boids.move(this.view.size);
-                };
-                Program.onFormSubmit = function () {
-                    var settingForm = document.settingForm;
-                    Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
-                    Settings.save();
-                };
-                Program.onReset = function () {
-                    Settings.reset();
-                    Settings.save();
-                    Program.initializeForm();
-                };
-                Program.initializeForm = function () {
-                    var settings = Settings.get();
-                    Program.setToInput("boidSizeTextBox", settings.boidSize);
-                    Program.setToInput("randomParameterTextBox", settings.randomParameter);
-                    Program.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
-                    Program.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
-                    Program.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
-                    Program.setToInput("separationParameterTextBox", settings.separationParameter);
-                    Program.setToInput("alignmentParameterTextBox", settings.alignmentParameter);
-                };
-                Program.setToInput = function (inputName, value) {
-                    var elements = document.getElementsByName(inputName);
-                    if (elements.length > 0)
-                        (elements[0]).value = String(value);
                 };
                 Program.fps = 30;
                 Program.createTime = 10;

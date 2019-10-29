@@ -301,6 +301,55 @@ namespace Shos.Boids.Application2D {
         }
     }
 
+    class SettingsPanel {
+        static initialize(): void {
+            SettingsPanel.initializeHandlers();
+            SettingsPanel.initializeForm();
+        }
+
+        private static initializeHandlers(): void {
+            (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
+            (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
+        }
+
+        private static onFormSubmit(): void {
+            let settingForm = (<any>document).settingForm;
+            Settings.set(
+                Number(settingForm.boidSizeTextBox           .value),
+                Number(settingForm.randomParameterTextBox    .value),
+                Number(settingForm.initialBoidCountTextBox   .value),
+                Number(settingForm.maximumSpeedTextBox       .value),
+                Number(settingForm.cohesionParameterTextBox  .value),
+                Number(settingForm.separationParameterTextBox.value),
+                Number(settingForm.alignmentParameterTextBox .value)
+            );
+            Settings.save();
+        }
+
+        private static onReset(): void {
+            Settings.reset();
+            Settings.save();
+            SettingsPanel.initializeForm();
+        }
+
+        private static initializeForm(): void {
+            let settings = Settings.get();
+            SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
+            SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
+            SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
+            SettingsPanel.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
+            SettingsPanel.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
+            SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
+            SettingsPanel.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
+        }
+
+        private static setToInput(inputName: string, value: number): void {
+            let elements = document.getElementsByName(inputName);
+            if (elements.length > 0)
+                (<HTMLInputElement>(elements[0])).value = String(value);
+        }
+    }
+
     class Program {
         private static fps              =  30;
         private static createTime       =  10;
@@ -323,7 +372,7 @@ namespace Shos.Boids.Application2D {
             this.view.update();
             this.appendBoids(Boids.initialBoidCount);
             setInterval(() => this.step(), 1000 / Program.fps);
-            Program.initializeForm();
+            SettingsPanel.initialize();
         }
 
         private bindEvents(): void {
@@ -376,43 +425,6 @@ namespace Shos.Boids.Application2D {
         private step(): void {
             this.view.drawBoids(this.boids);
             this.boids.move(this.view.size);
-        }
-
-        static onFormSubmit(): void {
-            let settingForm = (<any>document).settingForm;
-            Settings.set(
-                Number(settingForm.boidSizeTextBox           .value),
-                Number(settingForm.randomParameterTextBox    .value),
-                Number(settingForm.initialBoidCountTextBox   .value),
-                Number(settingForm.maximumSpeedTextBox       .value),
-                Number(settingForm.cohesionParameterTextBox  .value),
-                Number(settingForm.separationParameterTextBox.value),
-                Number(settingForm.alignmentParameterTextBox .value)
-            );
-            Settings.save();
-        }
-
-        static onReset(): void {
-            Settings.reset();
-            Settings.save();
-            Program.initializeForm();
-        }
-
-        private static initializeForm(): void {
-            let settings = Settings.get();
-            Program.setToInput("boidSizeTextBox"           , settings.boidSize           );
-            Program.setToInput("randomParameterTextBox"    , settings.randomParameter    );
-            Program.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
-            Program.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
-            Program.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
-            Program.setToInput("separationParameterTextBox", settings.separationParameter);
-            Program.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
-        }
-
-        private static setToInput(inputName: string, value: number): void {
-            let elements = document.getElementsByName(inputName);
-            if (elements.length > 0)
-                (<HTMLInputElement>(elements[0])).value = String(value);
         }
     }
 
