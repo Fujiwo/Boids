@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1, maximum-scale=1, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="Author" content="Fujiwo">
+    <meta name="Classification" content="Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash;">
+    <meta name="Description" content="Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash;">
+    <meta name="keywords" content="Boids,artificial life,TypeScript,JavaScript,Three.js">
+    <title>Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash; | Sho's Software</title>
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <style>
+        body {
+            font-size: x-small;
+        }
+        /* h1 {
+            font-size: x-small;
+            padding: 0.3em 0.4em;
+            color:black;
+            background:whitesmoke;
+            border-left: solid 4px gray;
+            border-bottom: solid 2px darkgray;
+        } */
+        canvas {
+            background:snow;
+            border: solid 1px lightgray;
+            margin: 0.3em;
+            padding: 0.1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="panel">
+        <nav>
+            <p class="navigator">
+                &lt;<a href="../index2.html">HOME</a>&gt; &mdash; &lt;<a href="./document.html">Documents</a>&gt; &mdash; &lt;Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash;&gt;
+            </p>
+        </nav>
+        <p class="small">
+            <script type="text/javascript">
+                document.write("Last updated on " + document.lastModified + ".")
+            </script>
+        </p>
+        <div>
+        <h2 id="titleBar"><a href="https://en.wikipedia.org/wiki/Boids">Boids</a> (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash; | Sho's Software</h2>
+            <div>
+                <p>Source code: <a href="https://github.com/Fujiwo/Shos.Boids">Shos.Boids | GitHub</a></p>
+            </div>
+            <div>
+                <form name="settingForm">
+                    <label>boid size:</label> <input type="number" name="boidSizeTextBox">
+                    <label>initial boid Count:</label> <input type="number" name="initialBoidCountTextBox">
+                    <label>maximum speed:</label> <input type="number" name="maximumSpeedTextBox">
+                    <label>cohesion parameter:</label> <input type="number" name="cohesionParameterTextBox">
+                    <label>separation parameter:</label> <input type="number" name="separationParameterTextBox">
+                    <label>alignment parameter:</label> <input type="number" name="alignmentParameterTextBox">
+                    <label>random parameter:</label> <input type="number" name="randomParameterTextBox">
+                    <input type="button" value="submit" onclick="Program.onFormSubmit()">
+                    <input type="button" value="reset" onclick="Program.onReset()">
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>
+        <canvas id="canvas"></canvas>
+    </div>
+    <nav>
+        <p class="navigator">
+            See also:
+            <ul>
+                <li><a href="http://www.red3d.com/cwr/boids/">Boids (Flocks, Herds, and Schools: a Distributed Behavioral Model)</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Boids">Boids - Wikipedia</a></li>
+            </ul>
+        </p>
+    </nav>
+    <script src="boids3d.min.js"></script>
+    <!-- <script></script> -->
+</body>
+</html>
