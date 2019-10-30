@@ -206,7 +206,12 @@ var Shos;
             var Material;
             (function (Material) {
                 Material[Material["Basic"] = 0] = "Basic";
-                Material[Material["Lambert"] = 1] = "Lambert";
+                Material[Material["Standard"] = 1] = "Standard";
+                Material[Material["Normal"] = 2] = "Normal";
+                Material[Material["Lambert"] = 3] = "Lambert";
+                Material[Material["Phong"] = 4] = "Phong";
+                Material[Material["First"] = 0] = "First";
+                Material[Material["Last"] = 4] = "Last";
             })(Material || (Material = {}));
             var View = /** @class */ (function () {
                 function View() {
@@ -220,6 +225,7 @@ var Shos;
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.setCamera();
                     this.setLight();
+                    //this.areaMesh = this.createAreaMesh();
                 }
                 View.prototype.moveCamera = function (offset) {
                     this.camera.position.addVectors(this.camera.position, offset);
@@ -235,7 +241,7 @@ var Shos;
                 };
                 View.prototype.setLight = function () {
                     this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 1.0));
+                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
                 };
                 View.prototype.update = function () {
                     var panel = document.getElementById("panel");
@@ -244,6 +250,7 @@ var Shos;
                     this.size.z = Math.sqrt(this.size.x * this.size.y);
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.resetCamera();
+                    //this.updateAreaMesh();
                 };
                 View.prototype.drawBoids = function (boids) {
                     this.updateMeshes(boids);
@@ -268,8 +275,17 @@ var Shos;
                         var coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
                         var material;
                         switch (View.boidMaterial) {
+                            case Material.Standard:
+                                material = new THREE.MeshStandardMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
+                                break;
+                            case Material.Normal:
+                                material = new THREE.MeshNormalMaterial({ transparent: true, opacity: boid.opacity });
+                                break;
                             case Material.Lambert:
-                                material = new THREE.MeshBasicMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
+                                material = new THREE.MeshLambertMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
+                                break;
+                            case Material.Phong:
+                                material = new THREE.MeshPhongMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
                                 break;
                             default:
                                 material = new THREE.MeshBasicMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
@@ -284,8 +300,9 @@ var Shos;
                 };
                 View.defaultBoidSize = 6;
                 View.boidSize = View.defaultBoidSize;
-                View.defaultBoidMaterial = Material.Basic;
+                View.defaultBoidMaterial = Material.Standard;
                 View.boidMaterial = View.defaultBoidMaterial;
+                //private areaMesh: THREE.Mesh;
                 View.sizeRate = 0.95;
                 return View;
             }());
@@ -295,7 +312,7 @@ var Shos;
                 Settings.get = function () {
                     return {
                         boidSize: View.boidSize,
-                        boidMaterial: View.boidMaterial != Material.Basic,
+                        boidMaterial: View.boidMaterial,
                         randomParameter: Boid.maximumRandomDistance,
                         initialBoidCount: Boids.initialBoidCount,
                         maximumSpeed: Boids.maximumSpeed,
@@ -306,13 +323,20 @@ var Shos;
                 };
                 Settings.set = function (boidSize, boidMaterial, randomParameter, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
                     View.boidSize = boidSize;
-                    View.boidMaterial = boidMaterial ? Material.Lambert : Material.Basic;
+                    View.boidMaterial = Settings.toMaterial(boidMaterial);
                     Boid.maximumRandomDistance = randomParameter;
                     Boids.initialBoidCount = initialBoidCount;
                     Boids.maximumSpeed = maximumSpeed;
                     Boids.cohesionParameter = cohesionParameter;
                     Boids.separationParameter = separationParameter;
                     Boids.alignmentParameter = alignmentParameter;
+                };
+                Settings.toMaterial = function (value) {
+                    if (value < Material.First)
+                        return Material.First;
+                    if (value > Material.Last)
+                        return Material.Last;
+                    return value;
                 };
                 Settings.reset = function () {
                     View.boidSize = View.defaultBoidSize;
@@ -358,8 +382,9 @@ var Shos;
                 };
                 SettingsPanel.onFormSubmit = function () {
                     var settingForm = document.settingForm;
-                    Settings.set(Number(settingForm.boidSizeTextBox.value), settingForm.materialCheckBox.checked, Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
+                    Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.boidMaterialTextBox.value), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
                     Settings.save();
+                    this.initializeForm();
                 };
                 SettingsPanel.onReset = function () {
                     Settings.reset();
@@ -369,15 +394,13 @@ var Shos;
                 SettingsPanel.initializeForm = function () {
                     var settings = Settings.get();
                     SettingsPanel.setToInput("boidSizeTextBox", settings.boidSize);
+                    SettingsPanel.setToInput("boidMaterialTextBox", settings.boidMaterial);
                     SettingsPanel.setToInput("randomParameterTextBox", settings.randomParameter);
                     SettingsPanel.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
                     SettingsPanel.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
                     SettingsPanel.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
                     SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
                     SettingsPanel.setToInput("alignmentParameterTextBox", settings.alignmentParameter);
-                    var elements = document.getElementsByName("materialCheckBox");
-                    if (elements.length > 0)
-                        (elements[0]).checked = settings.boidMaterial;
                 };
                 SettingsPanel.setToInput = function (inputName, value) {
                     var elements = document.getElementsByName(inputName);

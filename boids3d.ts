@@ -199,13 +199,13 @@ namespace Shos.Boids.Application3D {
     import Boid     = Shos.Boids.Core3D.Boid;
 
     enum Material {
-        Basic, Lambert
+        Basic, Standard, Normal, Lambert, Phong, First = Basic, Last = Phong
     }
 
     class View {
         static defaultBoidSize      = 6;
         static boidSize             = View.defaultBoidSize;
-        static defaultBoidMaterial  = Material.Basic;
+        static defaultBoidMaterial  = Material.Standard;
         static boidMaterial         = View.defaultBoidMaterial;
 
         size                        = new Vector3D(1000, 1000);
@@ -215,6 +215,7 @@ namespace Shos.Boids.Application3D {
         private scene = new THREE.Scene();
         private camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
         private meshes: THREE.Mesh[] = [];
+        //private areaMesh: THREE.Mesh;
 
         private static sizeRate: number = 0.95;
 
@@ -235,7 +236,7 @@ namespace Shos.Boids.Application3D {
 
         private setLight() : void {
             this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-            this.scene.add(new THREE.AmbientLight(0xFFFFFF, 1.0));
+            this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
         }
   
         constructor() {
@@ -243,6 +244,7 @@ namespace Shos.Boids.Application3D {
             this.renderer.setSize(this.size.x, this.size.y);
             this.setCamera();
             this.setLight();
+            //this.areaMesh = this.createAreaMesh();
         }
 
         update(): void {
@@ -252,6 +254,7 @@ namespace Shos.Boids.Application3D {
             this.size.z = Math.sqrt(this.size.x * this.size.y);
             this.renderer.setSize(this.size.x, this.size.y);
             this.resetCamera();
+            //this.updateAreaMesh();
         }
 
         drawBoids(boids: Boids): void {
@@ -280,8 +283,11 @@ namespace Shos.Boids.Application3D {
                 let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
                 var material: THREE.Material;
                 switch (View.boidMaterial) {
-                    case Material.Lambert: material = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } ); break;
-                    default              : material = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                    case Material.Standard: material = new THREE.MeshStandardMaterial( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                    case Material.Normal  : material = new THREE.MeshNormalMaterial  ( {                    transparent: true, opacity: boid.opacity } ); break;
+                    case Material.Lambert : material = new THREE.MeshLambertMaterial ( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                    case Material.Phong   : material = new THREE.MeshPhongMaterial   ( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                    default               : material = new THREE.MeshBasicMaterial   ( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
                 }
                 let mesh = new THREE.Mesh(coneGeometry, material);
                 mesh.position.set(boid.position.x, boid.position.y, boid.position.z);
@@ -290,6 +296,28 @@ namespace Shos.Boids.Application3D {
                 this.meshes.push(mesh);
             }
         }
+
+        // private createAreaMesh() : THREE.Mesh {
+        //     const color   = 0x6699aa;
+        //     const opacity = 0.1;
+
+        //     let boxGeometry = new THREE.BoxGeometry(this.size.x, this.size.y, this.size.z);
+        //     var material: THREE.Material;
+        //     switch (View.boidMaterial) {
+        //         case Material.Lambert: material = new THREE.MeshStandardMaterial( {color: color, transparent: true, opacity: opacity } ); break;
+        //         default              : material = new THREE.MeshBasicMaterial   ( {color: color, transparent: true, opacity: opacity } ); break;
+        //     }
+        //     let areaMesh = new THREE.Mesh(boxGeometry, material);
+        //     areaMesh.position.set(this.size.x / 2, this.size.y / 2, this.size.z / 2);
+        //     return areaMesh;
+        // }
+
+        // private updateAreaMesh(): void {
+        //     if (this.areaMesh != null)
+        //         this.scene.remove(this.areaMesh);
+        //     this.areaMesh = this.createAreaMesh();
+        //     this.scene.add(this.areaMesh);
+        // }
     }
 
     class Settings {
@@ -297,26 +325,32 @@ namespace Shos.Boids.Application3D {
 
         static get() : any {
             return  {
-                boidSize           : View .boidSize                      ,
-                boidMaterial       : View .boidMaterial != Material.Basic,
-                randomParameter    : Boid .maximumRandomDistance         ,
-                initialBoidCount   : Boids.initialBoidCount              ,
-                maximumSpeed       : Boids.maximumSpeed                  ,
-                cohesionParameter  : Boids.cohesionParameter             ,
-                separationParameter: Boids.separationParameter           ,
+                boidSize           : View .boidSize             ,
+                boidMaterial       : <number>View.boidMaterial  ,
+                randomParameter    : Boid .maximumRandomDistance,
+                initialBoidCount   : Boids.initialBoidCount     ,
+                maximumSpeed       : Boids.maximumSpeed         ,
+                cohesionParameter  : Boids.cohesionParameter    ,
+                separationParameter: Boids.separationParameter  ,
                 alignmentParameter : Boids.alignmentParameter
             };
         }
 
-        static set(boidSize: number, boidMaterial: boolean, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-            View .boidSize              = boidSize                                        ;
-            View .boidMaterial          = boidMaterial ? Material.Lambert : Material.Basic;
-            Boid .maximumRandomDistance = randomParameter                                 ;
-            Boids.initialBoidCount      = initialBoidCount                                ;
-            Boids.maximumSpeed          = maximumSpeed                                    ;
-            Boids.cohesionParameter     = cohesionParameter                               ;
-            Boids.separationParameter   = separationParameter                             ;
-            Boids.alignmentParameter    = alignmentParameter                              ;
+        static set(boidSize: number, boidMaterial: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
+            View .boidSize              = boidSize              ;
+            View .boidMaterial          = Settings.toMaterial(boidMaterial);
+            Boid .maximumRandomDistance = randomParameter       ;
+            Boids.initialBoidCount      = initialBoidCount      ;
+            Boids.maximumSpeed          = maximumSpeed          ;
+            Boids.cohesionParameter     = cohesionParameter     ;
+            Boids.separationParameter   = separationParameter   ;
+            Boids.alignmentParameter    = alignmentParameter    ;
+        }
+
+        private static toMaterial(value: number): Material {
+            if (value < Material.First) return Material.First ;
+            if (value > Material.Last ) return Material.Last  ;
+                                        return <Material>value;
         }
 
         static reset(): void {
@@ -366,7 +400,7 @@ namespace Shos.Boids.Application3D {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
-                settingForm.materialCheckBox.checked                ,
+                Number(settingForm.boidMaterialTextBox       .value),
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
                 Number(settingForm.maximumSpeedTextBox       .value),
@@ -375,6 +409,7 @@ namespace Shos.Boids.Application3D {
                 Number(settingForm.alignmentParameterTextBox .value),
             );
             Settings.save();
+            this.initializeForm();
         }
 
         private static onReset(): void {
@@ -386,16 +421,13 @@ namespace Shos.Boids.Application3D {
         private static initializeForm(): void {
             let settings = Settings.get();
             SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
+            SettingsPanel.setToInput("boidMaterialTextBox"       , settings.boidMaterial       );
             SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
             SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
             SettingsPanel.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
             SettingsPanel.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
             SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
             SettingsPanel.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
-
-            let elements = document.getElementsByName("materialCheckBox");
-            if (elements.length > 0)
-                (<HTMLInputElement>(elements[0])).checked = settings.boidMaterial;
         }
 
         private static setToInput(inputName: string, value: number): void {
