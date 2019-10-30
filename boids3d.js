@@ -1,6 +1,5 @@
 "use strict";
 /// <reference path="three.d.ts" />
-/// <reference path="three-orbitcontrols.d.ts" />
 var Shos;
 (function (Shos) {
     var Boids;
@@ -268,35 +267,31 @@ var Shos;
             // }
             var View = /** @class */ (function () {
                 function View() {
-                    this.size = new Vector3D(960, 540);
+                    this.size = new Vector3D(1000, 1000);
                     this.canvas = document.querySelector('#canvas');
                     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
                     this.scene = new THREE.Scene();
                     this.camera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
-                    //private controls: THREE.OrbitControls;
-                    // private box: THREE.Mesh;
-                    // private cone: THREE.Mesh;
                     this.meshes = [];
                     this.renderer.setPixelRatio(window.devicePixelRatio);
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.setCamera();
                     this.setLight();
                 }
-                //private context        : CanvasRenderingContext2D;
                 View.prototype.moveCamera = function (offset) {
                     this.camera.position.addVectors(this.camera.position, offset);
                 };
                 View.prototype.setCamera = function () {
                     this.camera.position.set(this.size.x / 2, this.size.y / 2, 5000);
-                    //this.camera.position.set(0, 0, 5000);
                     this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-                    //this.camera.lookAt(new THREE.Vector3(0, 0, 0));
                     //this.controls = new THREE.OrbitControls(this.camera);
                 };
                 View.prototype.resetCamera = function () {
                     this.camera.aspect = this.size.x / this.size.y;
                     this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
                     this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                    // this.camera.position.set(5000, this.size.y / 2, this.size.z / 2);
+                    // this.camera.lookAt(new THREE.Vector3(0, this.size.x / 2, this.size.z / 2));
                 };
                 View.prototype.setLight = function () {
                     this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
@@ -308,21 +303,24 @@ var Shos;
                     this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
                     this.size.z = Math.sqrt(this.size.x * this.size.y);
                     this.renderer.setSize(this.size.x, this.size.y);
-                    // this.camera.aspect = this.size.x / this.size.y;
                     this.resetCamera();
                 };
                 View.prototype.drawBoids = function (boids) {
                     for (var index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
                         var boid = boids.boids[index];
                         this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
+                        this.meshes[index].rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
+                        this.meshes[index].rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
                     }
                     for (var index = this.meshes.length, boidsLength = boids.boids.length; this.meshes.length < boidsLength; index++) {
-                        //console.log("drawBoids" + this.meshes.length);
                         var boid = boids.boids[index];
-                        var coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 3, 6); //半径、高さ、底面の分割数
+                        var coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
                         var coneMaterial = new THREE.MeshBasicMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
                         var cone = new THREE.Mesh(coneGeometry, coneMaterial);
                         cone.position.set(boid.position.x, boid.position.y, boid.position.z);
+                        cone.rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
+                        cone.rotation.y = 0;
+                        cone.rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
                         this.scene.add(cone);
                         this.meshes.push(cone);
                     }

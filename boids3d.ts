@@ -1,5 +1,4 @@
 /// <reference path="three.d.ts" />
-/// <reference path="three-orbitcontrols.d.ts" />
 
 namespace Shos.Boids.Core3D.Helper {
     export class Vector3D {
@@ -278,19 +277,15 @@ namespace Shos.Boids.Application3D {
         static defaultBoidSize  = 6;
         static boidSize         = View.defaultBoidSize;
 
-        size                    = new Vector3D(960, 540);
+        size                    = new Vector3D(1000, 1000);
         canvas                  = <HTMLCanvasElement>document.querySelector('#canvas');
 
         private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
         private scene = new THREE.Scene();
         private camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
-        //private controls: THREE.OrbitControls;
-        // private box: THREE.Mesh;
-        // private cone: THREE.Mesh;
         private meshes: THREE.Mesh[] = [];
 
         private static sizeRate: number = 0.95;
-        //private context        : CanvasRenderingContext2D;
 
         moveCamera(offset: THREE.Vector3) : void {
             this.camera.position.addVectors(this.camera.position, offset);
@@ -298,9 +293,7 @@ namespace Shos.Boids.Application3D {
 
         private setCamera() : void {
             this.camera.position.set(this.size.x / 2, this.size.y / 2, 5000);
-            //this.camera.position.set(0, 0, 5000);
             this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-            //this.camera.lookAt(new THREE.Vector3(0, 0, 0));
             //this.controls = new THREE.OrbitControls(this.camera);
         }
 
@@ -308,6 +301,8 @@ namespace Shos.Boids.Application3D {
             this.camera.aspect = this.size.x / this.size.y;
             this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
             this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+            // this.camera.position.set(5000, this.size.y / 2, this.size.z / 2);
+            // this.camera.lookAt(new THREE.Vector3(0, this.size.x / 2, this.size.z / 2));
         }
 
         private setLight() : void {
@@ -328,7 +323,6 @@ namespace Shos.Boids.Application3D {
             this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
             this.size.z = Math.sqrt(this.size.x * this.size.y);
             this.renderer.setSize(this.size.x, this.size.y);
-            // this.camera.aspect = this.size.x / this.size.y;
             this.resetCamera();
         }
 
@@ -336,14 +330,18 @@ namespace Shos.Boids.Application3D {
             for (let index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
                 let boid = boids.boids[index];
                 this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
+                this.meshes[index].rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
+                this.meshes[index].rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
             }
             for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
-                //console.log("drawBoids" + this.meshes.length);
                 let boid = boids.boids[index];
-                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 3, 6); //半径、高さ、底面の分割数
+                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
                 let coneMaterial = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } );
                 let cone = new THREE.Mesh(coneGeometry, coneMaterial);
                 cone.position.set(boid.position.x, boid.position.y, boid.position.z);
+                cone.rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
+                cone.rotation.y = 0;
+                cone.rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
                 this.scene.add(cone);
                 this.meshes.push(cone);
             }
