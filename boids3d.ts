@@ -1,3 +1,6 @@
+/// <reference path="three.d.ts" />
+/// <reference path="three-orbitcontrols.d.ts" />
+
 namespace Shos.Boids.Core3D.Helper {
     export class Vector3D {
         x: number;
@@ -66,29 +69,39 @@ namespace Shos.Boids.Core3D {
     import Vector3D =  Shos.Boids.Core3D.Helper.Vector3D;
 
     export class Boid {
-        static defaultSize                  = 4;
+        static defaultSize                  = 6;
         static defaultMaximumRandomDistance = 2;
 
         static size                         = Boid.defaultSize;
         static maximumRandomDistance        = Boid.defaultMaximumRandomDistance;
 
-        position     : Vector3D;
-        velocity     : Vector3D;
-        private color: string  ;
+        position        : Vector3D;
+        velocity        : Vector3D;
+        private opacity_: number  ;
+        private color_  : number  ;
+
+        get color(): number {
+            return this.color_;
+        }
+
+        get opacity(): number {
+            return this.opacity_;
+        }
 
         get speed(): number {
             return this.velocity.absoluteValue;
         }
 
-        constructor(position: Vector3D = new Vector3D(), velocity: Vector3D = new Vector3D(), color: string = "black") {
+        constructor(position: Vector3D = new Vector3D(), velocity: Vector3D = new Vector3D(), color: number = 0xffffff, opacity: number = 1.0) {
             this.position = position;
             this.velocity = velocity;
-            this.color    = color   ;
+            this.color_   = color   ;
+            this.opacity_ = opacity  ;
         }
 
-        draw(context: CanvasRenderingContext2D): void {
-            this.drawShape(context, this.position, Boid.size, this.color);
-        }
+        // draw(context: CanvasRenderingContext2D): void {
+        //     this.drawShape(context, this.position, Boid.size, this.color);
+        // }
 
         move(): void {
             this.velocity.plusEqual(Boid.getRandomVector());
@@ -99,28 +112,28 @@ namespace Shos.Boids.Core3D {
             return this.position.getDistance(another.position);
         }
 
-        private drawShape(context: CanvasRenderingContext2D, center: Vector3D, size: number, color: string) {
-            let halfVelocity          = this.velocity.multiply(size / 2);
-            let point1                = this.position.plus(halfVelocity);
-            let middlePoint           = this.position.minus(halfVelocity);
-            let velocityAbsoluteValue = this.velocity.absoluteValue;
-            let unitVelocity          = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
-            let point2                = middlePoint.plus(new Vector3D( unitVelocity.y, -unitVelocity.x));
-            let point3                = middlePoint.plus(new Vector3D(-unitVelocity.y,  unitVelocity.x));
-            Boid.drawPolygon(context, [point1, point2, point3], color);
-        }
+        // private drawShape(context: CanvasRenderingContext2D, center: Vector3D, size: number, color: string) {
+        //     let halfVelocity          = this.velocity.multiply(size / 2);
+        //     let point1                = this.position.plus(halfVelocity);
+        //     let middlePoint           = this.position.minus(halfVelocity);
+        //     let velocityAbsoluteValue = this.velocity.absoluteValue;
+        //     let unitVelocity          = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
+        //     let point2                = middlePoint.plus(new Vector3D( unitVelocity.y, -unitVelocity.x));
+        //     let point3                = middlePoint.plus(new Vector3D(-unitVelocity.y,  unitVelocity.x));
+        //     Boid.drawPolygon(context, [point1, point2, point3], color);
+        // }
 
-        private static drawPolygon(context: CanvasRenderingContext2D, polygon: Vector3D[], color: string) {
-            let polygonLength = polygon.length;
-            if (polygonLength < 2)
-                return;
-            context.fillStyle = color;
-            context.beginPath();
-            context.moveTo(polygon[0].x, polygon[0].y);
-            for (let index = 1; index < polygonLength; index++)
-                context.lineTo(polygon[index].x, polygon[index].y);
-            context.fill();
-        }
+        // private static drawPolygon(context: CanvasRenderingContext2D, polygon: Vector3D[], color: string) {
+        //     let polygonLength = polygon.length;
+        //     if (polygonLength < 2)
+        //         return;
+        //     context.fillStyle = color;
+        //     context.beginPath();
+        //     context.moveTo(polygon[0].x, polygon[0].y);
+        //     for (let index = 1; index < polygonLength; index++)
+        //         context.lineTo(polygon[index].x, polygon[index].y);
+        //     context.fill();
+        // }
 
         private static getRandomVector(): Vector3D {
             return new Vector3D(Boid.getRandomDistance(), Boid.getRandomDistance(), Boid.getRandomDistance());       
@@ -169,6 +182,8 @@ namespace Shos.Boids.Core3D {
                     boid.velocity.x *= -1;
                 if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                     boid.velocity.y *= -1;
+                if (boid.position.z < 0 && boid.velocity.z < 0 || boid.position.z > size.z && boid.velocity.z > 0)
+                    boid.velocity.z *= -1;
 
                     boid.move();
             }
@@ -214,41 +229,150 @@ namespace Shos.Boids.Application3D {
     import Boids = Shos.Boids.Core3D.Boids;
     import Boid = Shos.Boids.Core3D.Boid;
 
-    class View {
-        private static sizeRate: number = 0.95;
-        private context        : CanvasRenderingContext2D;
-        canvas                 : HTMLCanvasElement;
-        size                            = new Vector3D();
+    // function init() {
+    //     const width = 960;
+    //     const height = 540;
+      
+    //     // レンダラーを作成
+    //     const renderer = new THREE.WebGLRenderer({
+    //       canvas: <HTMLCanvasElement>document.querySelector('#canvas')
+    //     });
+    //     renderer.setPixelRatio(window.devicePixelRatio);
+    //     renderer.setSize(width, height);
+      
+    //     // シーンを作成
+    //     const scene = new THREE.Scene();
+      
+    //     // カメラを作成
+    //     const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+    //     camera.position.set(0, 0, +1000);
+    //     const controls = new THREE.OrbitControls(camera);
+      
+    //     // 箱を作成
+    //     const geometry = new THREE.BoxGeometry(500, 500, 500);
+    //     const material = new THREE.MeshStandardMaterial({color: 0x0000FF});
+    //     const box = new THREE.Mesh(geometry, material);
+    //     scene.add(box);
+      
+    //     // 平行光源
+    //     const light1 = new THREE.DirectionalLight(0xFFFFFF, 2.0);
+    //     const light2 = new THREE.AmbientLight(0xFFFFFF, 1.0);
+    //     //light1.position.set(1, 1, 1);
+    //     // シーンに追加
+    //     scene.add(light1);
+    //     scene.add(light2);
+      
+    //     // 初回実行
+    //     tick();
+      
+    //     function tick() {
+    //       requestAnimationFrame(tick);
+      
+    //       // 箱を回転させる
+    //       box.rotation.x += 0.01;
+    //       box.rotation.y += 0.01;
+      
+    //       // レンダリング
+    //       renderer.render(scene, camera);
+    //     }
+    // }
 
+    class View {
+        size                            = new Vector3D(960, 540);
+        canvas                 : HTMLCanvasElement  = <HTMLCanvasElement>document.querySelector('#canvas');
+
+        private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+        private scene = new THREE.Scene();
+        private camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
+        //private controls: THREE.OrbitControls;
+        // private box: THREE.Mesh;
+        // private cone: THREE.Mesh;
+        private meshes: THREE.Mesh[] = [];
+
+        private static sizeRate: number = 0.95;
+        //private context        : CanvasRenderingContext2D;
+
+        moveCamera(offset: THREE.Vector3) : void {
+            this.camera.position.addVectors(this.camera.position, offset);
+        }
+
+        private setCamera() : void {
+            this.camera.position.set(this.size.x / 2, this.size.y / 2, 5000);
+            //this.camera.position.set(0, 0, 5000);
+            this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+            //this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+            //this.controls = new THREE.OrbitControls(this.camera);
+        }
+
+        private resetCamera() : void {
+            this.camera.aspect = this.size.x / this.size.y;
+            this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
+            this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+        }
+
+        private setLight() : void {
+            this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
+            this.scene.add(new THREE.AmbientLight(0xFFFFFF, 1.0));
+        }
+  
         constructor() {
-            this.canvas = <HTMLCanvasElement>document.querySelector("#canvas");
-            this.context = <CanvasRenderingContext2D>this.canvas.getContext("2d");
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.setSize(this.size.x, this.size.y);
+            this.setCamera();
+            this.setLight();
         }
 
         update(): void {
             let panel = <HTMLDivElement>document.getElementById("panel");
-            this.size.x = this.canvas.width  = Math.round(window.innerWidth * View.sizeRate);
-            this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+            this.size.x = Math.round(window.innerWidth * View.sizeRate);
+            this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
             this.size.z = Math.sqrt(this.size.x * this.size.y);
+            this.renderer.setSize(this.size.x, this.size.y);
+            // this.camera.aspect = this.size.x / this.size.y;
+            this.resetCamera();
         }
 
         drawBoids(boids: Boids): void {
-            this.drawAllBoid(boids.boids);
+            for (let index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
+                let boid = boids.boids[index];
+                this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
+            }
+            for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
+                //console.log("drawBoids" + this.meshes.length);
+                let boid = boids.boids[index];
+                let coneGeometry = new THREE.ConeGeometry(10, 20, 6); //半径、高さ、底面の分割数
+                let coneMaterial = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } );
+                let cone = new THREE.Mesh(coneGeometry, coneMaterial);
+                cone.position.set(boid.position.x, boid.position.y, boid.position.z);
+                this.scene.add(cone);
+                this.meshes.push(cone);
+            }
+
+            // this.box.rotation.x += 0.01;
+            // this.box.rotation.y += 0.02;
+            // this.box.rotation.z += 0.001;
+
+            // this.cone.rotation.x += 0.02;
+            // this.cone.rotation.y += 0.001;
+            // this.cone.rotation.z += 0.01;
+
+            //this.drawAllBoid(boids.boids);
+            this.renderer.render(this.scene, this.camera);
         }
 
-        private drawAllBoid(boids: Boid[]): void {
-            this.context.clearRect(0, 0, this.size.x, this.size.y);
+        // private drawAllBoid(boids: Boid[]): void {
+        //     this.context.clearRect(0, 0, this.size.x, this.size.y);
 
-            for (let index = 0, length = boids.length; index < length; index++)
-                boids[index].draw(this.context);
-            this.drawCount(boids.length);
-        }
+        //     for (let index = 0, length = boids.length; index < length; index++)
+        //         boids[index].draw(this.context);
+        //     //this.drawCount(boids.length);
+        // }
 
-        private drawCount(count: number): void {
-            this.context.fillStyle = "gray";
-            this.context.font = "14px";
-            this.context.fillText("Boids: " + String(count), 20, 20);
-        }
+        // private drawCount(count: number): void {
+        //     this.context.fillStyle = "gray";
+        //     this.context.font = "14px";
+        //     this.context.fillText("Boids: " + String(count), 20, 20);
+        // }
     }
 
     class Settings {
@@ -357,10 +481,10 @@ namespace Shos.Boids.Application3D {
     }
 
     class Program {
-        private static fps              =  30;
+        //private static fps              =  30;
         private static createTime       =  10;
         private static startTime        = 100;
-        private static colorValueBase   = 0xa0; // 0x00~0xff
+        private static colorValueBase   = 0x40; // 0x00~0xff
         private static opacityBase1     = 0.40; // 0.0~opacityBase2
         private static opacityBase2     = 0.60; // opacityBase1~1.0
 
@@ -371,13 +495,17 @@ namespace Shos.Boids.Application3D {
         constructor() {
             Settings.load();
             setTimeout(() => this.initialize(), Program.startTime);
+            //this.initialize();
         }
 
         private initialize(): void {
             this.bindEvents();
             this.view.update();
             this.appendBoids(Boids.initialBoidCount);
-            setInterval(() => this.step(), 1000 / Program.fps);
+            //setInterval(() => this.step(), 1000 / Program.fps);
+            setTimeout(() => this.step(), Program.startTime);
+            //this.step();
+
             SettingsPanel.initialize();
         }
 
@@ -387,6 +515,8 @@ namespace Shos.Boids.Application3D {
             this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
             this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
             window.addEventListener("resize", () =>  this.view.update());
+            (<HTMLInputElement>document.getElementById("forwardButton" )).onclick = () => this.view.moveCamera(new THREE.Vector3(0, 0, -1000));
+            (<HTMLInputElement>document.getElementById("backwardButton")).onclick = () => this.view.moveCamera(new THREE.Vector3(0, 0,  1000));
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
@@ -413,15 +543,15 @@ namespace Shos.Boids.Application3D {
         }
 
         private static createBoid(areaSize: Vector3D, position?: Vector3D) {
-            return new Boid(position || areaSize.innerProduct(new Vector3D(Math.random(), Math.random(), Math.random())), new Vector3D(), this.getRandomColor());
+            return new Boid(position || areaSize.innerProduct(new Vector3D(Math.random(), Math.random(), Math.random())), new Vector3D(), this.getRandomColor(), this. getOpactiy());
         }
 
-        private static getRandomColor(): string {
-            return "rgba(" + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getOpactiy()) + ")";
+        private static getRandomColor(): number {
+            return Program.getRandomColorValue() * (0x100 * 0x100) + Program.getRandomColorValue() * 0x100 + Program.getRandomColorValue();
         }
 
         private static getRandomColorValue(): number {
-            return Math.round(Math.random() * Program.colorValueBase);
+            return Math.round(0xff - Math.random() * Program.colorValueBase);
         }
 
         private static getOpactiy(): number {
@@ -431,8 +561,10 @@ namespace Shos.Boids.Application3D {
         private step(): void {
             this.view.drawBoids(this.boids);
             this.boids.move(this.view.size);
+            requestAnimationFrame(() => this.step());
         }
     }
 
     onload = () => new Program();
+    //onload = () => init();
 }

@@ -1,4 +1,6 @@
 "use strict";
+/// <reference path="three.d.ts" />
+/// <reference path="three-orbitcontrols.d.ts" />
 var Shos;
 (function (Shos) {
     var Boids;
@@ -73,14 +75,30 @@ var Shos;
         (function (Core3D) {
             var Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
             var Boid = /** @class */ (function () {
-                function Boid(position, velocity, color) {
+                function Boid(position, velocity, color, opacity) {
                     if (position === void 0) { position = new Vector3D(); }
                     if (velocity === void 0) { velocity = new Vector3D(); }
-                    if (color === void 0) { color = "black"; }
+                    if (color === void 0) { color = 0xffffff; }
+                    if (opacity === void 0) { opacity = 1.0; }
                     this.position = position;
                     this.velocity = velocity;
-                    this.color = color;
+                    this.color_ = color;
+                    this.opacity_ = opacity;
                 }
+                Object.defineProperty(Boid.prototype, "color", {
+                    get: function () {
+                        return this.color_;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(Boid.prototype, "opacity", {
+                    get: function () {
+                        return this.opacity_;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 Object.defineProperty(Boid.prototype, "speed", {
                     get: function () {
                         return this.velocity.absoluteValue;
@@ -88,9 +106,9 @@ var Shos;
                     enumerable: true,
                     configurable: true
                 });
-                Boid.prototype.draw = function (context) {
-                    this.drawShape(context, this.position, Boid.size, this.color);
-                };
+                // draw(context: CanvasRenderingContext2D): void {
+                //     this.drawShape(context, this.position, Boid.size, this.color);
+                // }
                 Boid.prototype.move = function () {
                     this.velocity.plusEqual(Boid.getRandomVector());
                     this.position.plusEqual(this.velocity);
@@ -98,34 +116,34 @@ var Shos;
                 Boid.prototype.getDistance = function (another) {
                     return this.position.getDistance(another.position);
                 };
-                Boid.prototype.drawShape = function (context, center, size, color) {
-                    var halfVelocity = this.velocity.multiply(size / 2);
-                    var point1 = this.position.plus(halfVelocity);
-                    var middlePoint = this.position.minus(halfVelocity);
-                    var velocityAbsoluteValue = this.velocity.absoluteValue;
-                    var unitVelocity = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
-                    var point2 = middlePoint.plus(new Vector3D(unitVelocity.y, -unitVelocity.x));
-                    var point3 = middlePoint.plus(new Vector3D(-unitVelocity.y, unitVelocity.x));
-                    Boid.drawPolygon(context, [point1, point2, point3], color);
-                };
-                Boid.drawPolygon = function (context, polygon, color) {
-                    var polygonLength = polygon.length;
-                    if (polygonLength < 2)
-                        return;
-                    context.fillStyle = color;
-                    context.beginPath();
-                    context.moveTo(polygon[0].x, polygon[0].y);
-                    for (var index = 1; index < polygonLength; index++)
-                        context.lineTo(polygon[index].x, polygon[index].y);
-                    context.fill();
-                };
+                // private drawShape(context: CanvasRenderingContext2D, center: Vector3D, size: number, color: string) {
+                //     let halfVelocity          = this.velocity.multiply(size / 2);
+                //     let point1                = this.position.plus(halfVelocity);
+                //     let middlePoint           = this.position.minus(halfVelocity);
+                //     let velocityAbsoluteValue = this.velocity.absoluteValue;
+                //     let unitVelocity          = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
+                //     let point2                = middlePoint.plus(new Vector3D( unitVelocity.y, -unitVelocity.x));
+                //     let point3                = middlePoint.plus(new Vector3D(-unitVelocity.y,  unitVelocity.x));
+                //     Boid.drawPolygon(context, [point1, point2, point3], color);
+                // }
+                // private static drawPolygon(context: CanvasRenderingContext2D, polygon: Vector3D[], color: string) {
+                //     let polygonLength = polygon.length;
+                //     if (polygonLength < 2)
+                //         return;
+                //     context.fillStyle = color;
+                //     context.beginPath();
+                //     context.moveTo(polygon[0].x, polygon[0].y);
+                //     for (let index = 1; index < polygonLength; index++)
+                //         context.lineTo(polygon[index].x, polygon[index].y);
+                //     context.fill();
+                // }
                 Boid.getRandomVector = function () {
                     return new Vector3D(Boid.getRandomDistance(), Boid.getRandomDistance(), Boid.getRandomDistance());
                 };
                 Boid.getRandomDistance = function () {
                     return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
                 };
-                Boid.defaultSize = 4;
+                Boid.defaultSize = 6;
                 Boid.defaultMaximumRandomDistance = 2;
                 Boid.size = Boid.defaultSize;
                 Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
@@ -154,6 +172,8 @@ var Shos;
                             boid.velocity.x *= -1;
                         if (boid.position.y < 0 && boid.velocity.y < 0 || boid.position.y > size.y && boid.velocity.y > 0)
                             boid.velocity.y *= -1;
+                        if (boid.position.z < 0 && boid.velocity.z < 0 || boid.position.z > size.z && boid.velocity.z > 0)
+                            boid.velocity.z *= -1;
                         boid.move();
                     }
                 };
@@ -210,31 +230,112 @@ var Shos;
             var Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
             var Boids = Shos.Boids.Core3D.Boids;
             var Boid = Shos.Boids.Core3D.Boid;
+            // function init() {
+            //     const width = 960;
+            //     const height = 540;
+            //     // レンダラーを作成
+            //     const renderer = new THREE.WebGLRenderer({
+            //       canvas: <HTMLCanvasElement>document.querySelector('#canvas')
+            //     });
+            //     renderer.setPixelRatio(window.devicePixelRatio);
+            //     renderer.setSize(width, height);
+            //     // シーンを作成
+            //     const scene = new THREE.Scene();
+            //     // カメラを作成
+            //     const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+            //     camera.position.set(0, 0, +1000);
+            //     const controls = new THREE.OrbitControls(camera);
+            //     // 箱を作成
+            //     const geometry = new THREE.BoxGeometry(500, 500, 500);
+            //     const material = new THREE.MeshStandardMaterial({color: 0x0000FF});
+            //     const box = new THREE.Mesh(geometry, material);
+            //     scene.add(box);
+            //     // 平行光源
+            //     const light1 = new THREE.DirectionalLight(0xFFFFFF, 2.0);
+            //     const light2 = new THREE.AmbientLight(0xFFFFFF, 1.0);
+            //     //light1.position.set(1, 1, 1);
+            //     // シーンに追加
+            //     scene.add(light1);
+            //     scene.add(light2);
+            //     // 初回実行
+            //     tick();
+            //     function tick() {
+            //       requestAnimationFrame(tick);
+            //       // 箱を回転させる
+            //       box.rotation.x += 0.01;
+            //       box.rotation.y += 0.01;
+            //       // レンダリング
+            //       renderer.render(scene, camera);
+            //     }
+            // }
             var View = /** @class */ (function () {
                 function View() {
-                    this.size = new Vector3D();
-                    this.canvas = document.querySelector("#canvas");
-                    this.context = this.canvas.getContext("2d");
+                    this.size = new Vector3D(960, 540);
+                    this.canvas = document.querySelector('#canvas');
+                    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+                    this.scene = new THREE.Scene();
+                    this.camera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
+                    //private controls: THREE.OrbitControls;
+                    // private box: THREE.Mesh;
+                    // private cone: THREE.Mesh;
+                    this.meshes = [];
+                    this.renderer.setPixelRatio(window.devicePixelRatio);
+                    this.renderer.setSize(this.size.x, this.size.y);
+                    this.setCamera();
+                    this.setLight();
                 }
+                //private context        : CanvasRenderingContext2D;
+                View.prototype.moveCamera = function (offset) {
+                    this.camera.position.addVectors(this.camera.position, offset);
+                };
+                View.prototype.setCamera = function () {
+                    this.camera.position.set(this.size.x / 2, this.size.y / 2, 5000);
+                    //this.camera.position.set(0, 0, 5000);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                    //this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+                    //this.controls = new THREE.OrbitControls(this.camera);
+                };
+                View.prototype.resetCamera = function () {
+                    this.camera.aspect = this.size.x / this.size.y;
+                    this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                };
+                View.prototype.setLight = function () {
+                    this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
+                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 1.0));
+                };
                 View.prototype.update = function () {
                     var panel = document.getElementById("panel");
-                    this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
-                    this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+                    this.size.x = Math.round(window.innerWidth * View.sizeRate);
+                    this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
                     this.size.z = Math.sqrt(this.size.x * this.size.y);
+                    this.renderer.setSize(this.size.x, this.size.y);
+                    // this.camera.aspect = this.size.x / this.size.y;
+                    this.resetCamera();
                 };
                 View.prototype.drawBoids = function (boids) {
-                    this.drawAllBoid(boids.boids);
-                };
-                View.prototype.drawAllBoid = function (boids) {
-                    this.context.clearRect(0, 0, this.size.x, this.size.y);
-                    for (var index = 0, length_2 = boids.length; index < length_2; index++)
-                        boids[index].draw(this.context);
-                    this.drawCount(boids.length);
-                };
-                View.prototype.drawCount = function (count) {
-                    this.context.fillStyle = "gray";
-                    this.context.font = "14px";
-                    this.context.fillText("Boids: " + String(count), 20, 20);
+                    for (var index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
+                        var boid = boids.boids[index];
+                        this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
+                    }
+                    for (var index = this.meshes.length, boidsLength = boids.boids.length; this.meshes.length < boidsLength; index++) {
+                        //console.log("drawBoids" + this.meshes.length);
+                        var boid = boids.boids[index];
+                        var coneGeometry = new THREE.ConeGeometry(10, 20, 6); //半径、高さ、底面の分割数
+                        var coneMaterial = new THREE.MeshBasicMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
+                        var cone = new THREE.Mesh(coneGeometry, coneMaterial);
+                        cone.position.set(boid.position.x, boid.position.y, boid.position.z);
+                        this.scene.add(cone);
+                        this.meshes.push(cone);
+                    }
+                    // this.box.rotation.x += 0.01;
+                    // this.box.rotation.y += 0.02;
+                    // this.box.rotation.z += 0.001;
+                    // this.cone.rotation.x += 0.02;
+                    // this.cone.rotation.y += 0.001;
+                    // this.cone.rotation.z += 0.01;
+                    //this.drawAllBoid(boids.boids);
+                    this.renderer.render(this.scene, this.camera);
                 };
                 View.sizeRate = 0.95;
                 return View;
@@ -338,13 +439,16 @@ var Shos;
                     this.appendTimer = 0;
                     Settings.load();
                     setTimeout(function () { return _this.initialize(); }, Program.startTime);
+                    //this.initialize();
                 }
                 Program.prototype.initialize = function () {
                     var _this = this;
                     this.bindEvents();
                     this.view.update();
                     this.appendBoids(Boids.initialBoidCount);
-                    setInterval(function () { return _this.step(); }, 1000 / Program.fps);
+                    //setInterval(() => this.step(), 1000 / Program.fps);
+                    setTimeout(function () { return _this.step(); }, Program.startTime);
+                    //this.step();
                     SettingsPanel.initialize();
                 };
                 Program.prototype.bindEvents = function () {
@@ -354,6 +458,8 @@ var Shos;
                     this.view.canvas.addEventListener("mouseup", function () { return clearInterval(_this.appendTimer); });
                     this.view.canvas.addEventListener("touchend", function () { return clearInterval(_this.appendTimer); });
                     window.addEventListener("resize", function () { return _this.view.update(); });
+                    document.getElementById("forwardButton").onclick = function () { return _this.view.moveCamera(new THREE.Vector3(0, 0, -1000)); };
+                    document.getElementById("backwardButton").onclick = function () { return _this.view.moveCamera(new THREE.Vector3(0, 0, 1000)); };
                 };
                 Program.getMousePosition = function (element, e) {
                     var rect = element.getBoundingClientRect();
@@ -377,30 +483,33 @@ var Shos;
                     }, Program.createTime);
                 };
                 Program.createBoid = function (areaSize, position) {
-                    return new Boid(position || areaSize.innerProduct(new Vector3D(Math.random(), Math.random(), Math.random())), new Vector3D(), this.getRandomColor());
+                    return new Boid(position || areaSize.innerProduct(new Vector3D(Math.random(), Math.random(), Math.random())), new Vector3D(), this.getRandomColor(), this.getOpactiy());
                 };
                 Program.getRandomColor = function () {
-                    return "rgba(" + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getRandomColorValue()) + ", " + String(Program.getOpactiy()) + ")";
+                    return Program.getRandomColorValue() * (0x100 * 0x100) + Program.getRandomColorValue() * 0x100 + Program.getRandomColorValue();
                 };
                 Program.getRandomColorValue = function () {
-                    return Math.round(Math.random() * Program.colorValueBase);
+                    return Math.round(0xff - Math.random() * Program.colorValueBase);
                 };
                 Program.getOpactiy = function () {
                     return Math.round(Math.random() * (Program.opacityBase2 - Program.opacityBase1) + Program.opacityBase1);
                 };
                 Program.prototype.step = function () {
+                    var _this = this;
                     this.view.drawBoids(this.boids);
                     this.boids.move(this.view.size);
+                    requestAnimationFrame(function () { return _this.step(); });
                 };
-                Program.fps = 30;
+                //private static fps              =  30;
                 Program.createTime = 10;
                 Program.startTime = 100;
-                Program.colorValueBase = 0xa0; // 0x00~0xff
+                Program.colorValueBase = 0x40; // 0x00~0xff
                 Program.opacityBase1 = 0.40; // 0.0~opacityBase2
                 Program.opacityBase2 = 0.60; // opacityBase1~1.0
                 return Program;
             }());
             onload = function () { return new Program(); };
+            //onload = () => init();
         })(Application3D = Boids_2.Application3D || (Boids_2.Application3D = {}));
     })(Boids = Shos.Boids || (Shos.Boids = {}));
 })(Shos || (Shos = {}));

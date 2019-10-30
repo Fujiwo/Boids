@@ -351,7 +351,7 @@ namespace Shos.Boids.Application2D {
     }
 
     class Program {
-        private static fps              =  30;
+        //private static fps              =  30;
         private static createTime       =  10;
         private static startTime        = 100;
         private static colorValueBase   = 0xa0; // 0x00~0xff
@@ -371,7 +371,8 @@ namespace Shos.Boids.Application2D {
             this.bindEvents();
             this.view.update();
             this.appendBoids(Boids.initialBoidCount);
-            setInterval(() => this.step(), 1000 / Program.fps);
+            //setInterval(() => this.step(), 1000 / Program.fps);
+            setTimeout(() => this.step(), Program.startTime);
             SettingsPanel.initialize();
         }
 
@@ -425,6 +426,7 @@ namespace Shos.Boids.Application2D {
         private step(): void {
             this.view.drawBoids(this.boids);
             this.boids.move(this.view.size);
+            requestAnimationFrame(() => this.step());
         }
     }
 
