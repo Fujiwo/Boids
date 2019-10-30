@@ -394,7 +394,8 @@ namespace Shos.Boids.Application3D {
         private static initializeHandlers(): void {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
-    
+            (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
+
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
             SettingsPanel.enableEnterKey("boidMaterialTextBox"       );
             SettingsPanel.enableEnterKey("randomParameterTextBox"    );
@@ -406,6 +407,16 @@ namespace Shos.Boids.Application3D {
         }
 
         private static onFormSubmit(): void {
+            SettingsPanel.setSettingsFromForm();
+            SettingsPanel.initializeForm();
+        }
+
+        private static onReload(): void {
+            SettingsPanel.setSettingsFromForm();
+            window.location.reload(false);
+        }
+
+        private static setSettingsFromForm(): void {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
@@ -418,7 +429,6 @@ namespace Shos.Boids.Application3D {
                 Number(settingForm.alignmentParameterTextBox .value),
             );
             Settings.save();
-            this.initializeForm();
         }
 
         private static onReset(): void {

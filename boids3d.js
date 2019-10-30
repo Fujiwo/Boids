@@ -379,6 +379,7 @@ var Shos;
                 SettingsPanel.initializeHandlers = function () {
                     document.getElementById("submitButton").onclick = SettingsPanel.onFormSubmit;
                     document.getElementById("resetButton").onclick = SettingsPanel.onReset;
+                    document.getElementById("reloadButton").onclick = SettingsPanel.onReload;
                     SettingsPanel.enableEnterKey("boidSizeTextBox");
                     SettingsPanel.enableEnterKey("boidMaterialTextBox");
                     SettingsPanel.enableEnterKey("randomParameterTextBox");
@@ -389,10 +390,17 @@ var Shos;
                     SettingsPanel.enableEnterKey("alignmentParameterTextBox");
                 };
                 SettingsPanel.onFormSubmit = function () {
+                    SettingsPanel.setSettingsFromForm();
+                    SettingsPanel.initializeForm();
+                };
+                SettingsPanel.onReload = function () {
+                    SettingsPanel.setSettingsFromForm();
+                    window.location.reload(false);
+                };
+                SettingsPanel.setSettingsFromForm = function () {
                     var settingForm = document.settingForm;
                     Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.boidMaterialTextBox.value), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
                     Settings.save();
-                    this.initializeForm();
                 };
                 SettingsPanel.onReset = function () {
                     Settings.reset();

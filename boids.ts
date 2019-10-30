@@ -309,6 +309,7 @@ namespace Shos.Boids.Application2D {
 
         private static initializeHandlers(): void {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
+            (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
 
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
@@ -321,6 +322,16 @@ namespace Shos.Boids.Application2D {
         }
 
         private static onFormSubmit(): void {
+            SettingsPanel.setSettingsFromForm();
+            SettingsPanel.initializeForm();
+        }
+
+        private static onReload(): void {
+            SettingsPanel.setSettingsFromForm();
+            window.location.reload(false);
+        }
+
+        private static setSettingsFromForm(): void {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
