@@ -143,9 +143,7 @@ var Shos;
                 Boid.getRandomDistance = function () {
                     return Boid.maximumRandomDistance * (Math.random() + Math.random()) - Boid.maximumRandomDistance;
                 };
-                Boid.defaultSize = 6;
                 Boid.defaultMaximumRandomDistance = 2;
-                Boid.size = Boid.defaultSize;
                 Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
                 return Boid;
             }());
@@ -321,7 +319,7 @@ var Shos;
                     for (var index = this.meshes.length, boidsLength = boids.boids.length; this.meshes.length < boidsLength; index++) {
                         //console.log("drawBoids" + this.meshes.length);
                         var boid = boids.boids[index];
-                        var coneGeometry = new THREE.ConeGeometry(10, 20, 6); //半径、高さ、底面の分割数
+                        var coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 3, 6); //半径、高さ、底面の分割数
                         var coneMaterial = new THREE.MeshBasicMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
                         var cone = new THREE.Mesh(coneGeometry, coneMaterial);
                         cone.position.set(boid.position.x, boid.position.y, boid.position.z);
@@ -337,6 +335,8 @@ var Shos;
                     //this.drawAllBoid(boids.boids);
                     this.renderer.render(this.scene, this.camera);
                 };
+                View.defaultBoidSize = 6;
+                View.boidSize = View.defaultBoidSize;
                 View.sizeRate = 0.95;
                 return View;
             }());
@@ -345,7 +345,7 @@ var Shos;
                 }
                 Settings.get = function () {
                     return {
-                        boidSize: Boid.size,
+                        boidSize: View.boidSize,
                         randomParameter: Boid.maximumRandomDistance,
                         initialBoidCount: Boids.initialBoidCount,
                         maximumSpeed: Boids.maximumSpeed,
@@ -355,7 +355,7 @@ var Shos;
                     };
                 };
                 Settings.set = function (boidSize, randomParameter, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
-                    Boid.size = boidSize;
+                    View.boidSize = boidSize;
                     Boid.maximumRandomDistance = randomParameter;
                     Boids.initialBoidCount = initialBoidCount;
                     Boids.maximumSpeed = maximumSpeed;
@@ -364,7 +364,7 @@ var Shos;
                     Boids.alignmentParameter = alignmentParameter;
                 };
                 Settings.reset = function () {
-                    Boid.size = Boid.defaultSize;
+                    View.boidSize = View.defaultBoidSize;
                     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
                     Boids.initialBoidCount = Boids.defaultInitialBoidCount;
                     Boids.maximumSpeed = Boids.defaultMaximumSpeed;

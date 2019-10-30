@@ -69,10 +69,7 @@ namespace Shos.Boids.Core3D {
     import Vector3D =  Shos.Boids.Core3D.Helper.Vector3D;
 
     export class Boid {
-        static defaultSize                  = 6;
         static defaultMaximumRandomDistance = 2;
-
-        static size                         = Boid.defaultSize;
         static maximumRandomDistance        = Boid.defaultMaximumRandomDistance;
 
         position        : Vector3D;
@@ -278,8 +275,11 @@ namespace Shos.Boids.Application3D {
     // }
 
     class View {
-        size                            = new Vector3D(960, 540);
-        canvas                 : HTMLCanvasElement  = <HTMLCanvasElement>document.querySelector('#canvas');
+        static defaultBoidSize  = 6;
+        static boidSize         = View.defaultBoidSize;
+
+        size                    = new Vector3D(960, 540);
+        canvas                  = <HTMLCanvasElement>document.querySelector('#canvas');
 
         private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
         private scene = new THREE.Scene();
@@ -340,7 +340,7 @@ namespace Shos.Boids.Application3D {
             for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
                 //console.log("drawBoids" + this.meshes.length);
                 let boid = boids.boids[index];
-                let coneGeometry = new THREE.ConeGeometry(10, 20, 6); //半径、高さ、底面の分割数
+                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 3, 6); //半径、高さ、底面の分割数
                 let coneMaterial = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } );
                 let cone = new THREE.Mesh(coneGeometry, coneMaterial);
                 cone.position.set(boid.position.x, boid.position.y, boid.position.z);
@@ -380,7 +380,7 @@ namespace Shos.Boids.Application3D {
 
         static get() : any {
             return  {
-                boidSize           : Boid .size                 ,
+                boidSize           : View .boidSize             ,
                 randomParameter    : Boid .maximumRandomDistance,
                 initialBoidCount   : Boids.initialBoidCount     ,
                 maximumSpeed       : Boids.maximumSpeed         ,
@@ -391,7 +391,7 @@ namespace Shos.Boids.Application3D {
         }
 
         static set(boidSize: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-            Boid .size                  = boidSize           ;
+            View .boidSize              = boidSize           ;
             Boid .maximumRandomDistance = randomParameter    ;
             Boids.initialBoidCount      = initialBoidCount   ;
             Boids.maximumSpeed          = maximumSpeed       ;
@@ -401,7 +401,7 @@ namespace Shos.Boids.Application3D {
         }
 
         static reset(): void {
-            Boid .size                  = Boid .defaultSize                 ;
+            View .boidSize              = View .defaultBoidSize             ;
             Boid .maximumRandomDistance = Boid .defaultMaximumRandomDistance;
             Boids.initialBoidCount      = Boids.defaultInitialBoidCount     ;
             Boids.maximumSpeed          = Boids.defaultMaximumSpeed         ;
