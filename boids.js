@@ -338,7 +338,6 @@ var Shos;
                     this.bindEvents();
                     this.view.update();
                     this.appendBoids(Boids.initialBoidCount);
-                    //setInterval(() => this.step(), 1000 / Program.fps);
                     setTimeout(function () { return _this.step(); }, Program.startTime);
                     SettingsPanel.initialize();
                 };
@@ -389,7 +388,6 @@ var Shos;
                     this.boids.move(this.view.size);
                     requestAnimationFrame(function () { return _this.step(); });
                 };
-                //private static fps              =  30;
                 Program.createTime = 10;
                 Program.startTime = 100;
                 Program.colorValueBase = 0xa0; // 0x00~0xff

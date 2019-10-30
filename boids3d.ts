@@ -95,10 +95,6 @@ namespace Shos.Boids.Core3D {
             this.opacity_ = opacity  ;
         }
 
-        // draw(context: CanvasRenderingContext2D): void {
-        //     this.drawShape(context, this.position, Boid.size, this.color);
-        // }
-
         move(): void {
             this.velocity.plusEqual(Boid.getRandomVector());
             this.position.plusEqual(this.velocity);
@@ -107,29 +103,6 @@ namespace Shos.Boids.Core3D {
         getDistance(another: Boid): number {
             return this.position.getDistance(another.position);
         }
-
-        // private drawShape(context: CanvasRenderingContext2D, center: Vector3D, size: number, color: string) {
-        //     let halfVelocity          = this.velocity.multiply(size / 2);
-        //     let point1                = this.position.plus(halfVelocity);
-        //     let middlePoint           = this.position.minus(halfVelocity);
-        //     let velocityAbsoluteValue = this.velocity.absoluteValue;
-        //     let unitVelocity          = this.velocity.multiply(size / (velocityAbsoluteValue * velocityAbsoluteValue));
-        //     let point2                = middlePoint.plus(new Vector3D( unitVelocity.y, -unitVelocity.x));
-        //     let point3                = middlePoint.plus(new Vector3D(-unitVelocity.y,  unitVelocity.x));
-        //     Boid.drawPolygon(context, [point1, point2, point3], color);
-        // }
-
-        // private static drawPolygon(context: CanvasRenderingContext2D, polygon: Vector3D[], color: string) {
-        //     let polygonLength = polygon.length;
-        //     if (polygonLength < 2)
-        //         return;
-        //     context.fillStyle = color;
-        //     context.beginPath();
-        //     context.moveTo(polygon[0].x, polygon[0].y);
-        //     for (let index = 1; index < polygonLength; index++)
-        //         context.lineTo(polygon[index].x, polygon[index].y);
-        //     context.fill();
-        // }
 
         private static getRandomVector(): Vector3D {
             return new Vector3D(Boid.getRandomDistance(), Boid.getRandomDistance(), Boid.getRandomDistance());       
@@ -181,7 +154,7 @@ namespace Shos.Boids.Core3D {
                 if (boid.position.z < 0 && boid.velocity.z < 0 || boid.position.z > size.z && boid.velocity.z > 0)
                     boid.velocity.z *= -1;
 
-                    boid.move();
+                boid.move();
             }
         }
 
@@ -222,63 +195,21 @@ namespace Shos.Boids.Core3D {
 
 namespace Shos.Boids.Application3D {
     import Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
-    import Boids = Shos.Boids.Core3D.Boids;
-    import Boid = Shos.Boids.Core3D.Boid;
+    import Boids    = Shos.Boids.Core3D.Boids;
+    import Boid     = Shos.Boids.Core3D.Boid;
 
-    // function init() {
-    //     const width = 960;
-    //     const height = 540;
-      
-    //     // レンダラーを作成
-    //     const renderer = new THREE.WebGLRenderer({
-    //       canvas: <HTMLCanvasElement>document.querySelector('#canvas')
-    //     });
-    //     renderer.setPixelRatio(window.devicePixelRatio);
-    //     renderer.setSize(width, height);
-      
-    //     // シーンを作成
-    //     const scene = new THREE.Scene();
-      
-    //     // カメラを作成
-    //     const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-    //     camera.position.set(0, 0, +1000);
-    //     const controls = new THREE.OrbitControls(camera);
-      
-    //     // 箱を作成
-    //     const geometry = new THREE.BoxGeometry(500, 500, 500);
-    //     const material = new THREE.MeshStandardMaterial({color: 0x0000FF});
-    //     const box = new THREE.Mesh(geometry, material);
-    //     scene.add(box);
-      
-    //     // 平行光源
-    //     const light1 = new THREE.DirectionalLight(0xFFFFFF, 2.0);
-    //     const light2 = new THREE.AmbientLight(0xFFFFFF, 1.0);
-    //     //light1.position.set(1, 1, 1);
-    //     // シーンに追加
-    //     scene.add(light1);
-    //     scene.add(light2);
-      
-    //     // 初回実行
-    //     tick();
-      
-    //     function tick() {
-    //       requestAnimationFrame(tick);
-      
-    //       // 箱を回転させる
-    //       box.rotation.x += 0.01;
-    //       box.rotation.y += 0.01;
-      
-    //       // レンダリング
-    //       renderer.render(scene, camera);
-    //     }
-    // }
+    enum Material {
+        Basic, Lambert
+    }
 
     class View {
-        static defaultBoidSize  = 6;
-        static boidSize         = View.defaultBoidSize;
+        static defaultBoidSize      = 6;
+        static boidSize             = View.defaultBoidSize;
+        static defaultBoidMaterial  = Material.Basic;
+        static boidMaterial         = View.defaultBoidMaterial;
 
-        size                    = new Vector3D(1000, 1000);
-        canvas                  = <HTMLCanvasElement>document.querySelector('#canvas');
+        size                        = new Vector3D(1000, 1000);
+        canvas                      = <HTMLCanvasElement>document.querySelector('#canvas');
 
         private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
         private scene = new THREE.Scene();
@@ -294,15 +225,12 @@ namespace Shos.Boids.Application3D {
         private setCamera() : void {
             this.camera.position.set(this.size.x / 2, this.size.y / 2, 5000);
             this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-            //this.controls = new THREE.OrbitControls(this.camera);
         }
 
         private resetCamera() : void {
             this.camera.aspect = this.size.x / this.size.y;
             this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
             this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-            // this.camera.position.set(5000, this.size.y / 2, this.size.z / 2);
-            // this.camera.lookAt(new THREE.Vector3(0, this.size.x / 2, this.size.z / 2));
         }
 
         private setLight() : void {
@@ -327,50 +255,41 @@ namespace Shos.Boids.Application3D {
         }
 
         drawBoids(boids: Boids): void {
-            for (let index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
-                let boid = boids.boids[index];
-                this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
-                this.meshes[index].rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
-                this.meshes[index].rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
-            }
-            for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
-                let boid = boids.boids[index];
-                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
-                let coneMaterial = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } );
-                let cone = new THREE.Mesh(coneGeometry, coneMaterial);
-                cone.position.set(boid.position.x, boid.position.y, boid.position.z);
-                cone.rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
-                cone.rotation.y = 0;
-                cone.rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
-                this.scene.add(cone);
-                this.meshes.push(cone);
-            }
-
-            // this.box.rotation.x += 0.01;
-            // this.box.rotation.y += 0.02;
-            // this.box.rotation.z += 0.001;
-
-            // this.cone.rotation.x += 0.02;
-            // this.cone.rotation.y += 0.001;
-            // this.cone.rotation.z += 0.01;
-
-            //this.drawAllBoid(boids.boids);
+            this.updateMeshes(boids);
+            this.createMeshes(boids);
             this.renderer.render(this.scene, this.camera);
         }
 
-        // private drawAllBoid(boids: Boid[]): void {
-        //     this.context.clearRect(0, 0, this.size.x, this.size.y);
+        private setRotation(mesh: THREE.Mesh, boid: Boid): void {
+            mesh.rotation.x =  Math.atan2(boid.velocity.z, boid.velocity.y);
+            mesh.rotation.y = 0;
+            mesh.rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
+        }
 
-        //     for (let index = 0, length = boids.length; index < length; index++)
-        //         boids[index].draw(this.context);
-        //     //this.drawCount(boids.length);
-        // }
+        private updateMeshes(boids: Boids): void {
+            for (let index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
+                let boid = boids.boids[index];
+                this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
+                this.setRotation(this.meshes[index], boid);
+            }
+        }
 
-        // private drawCount(count: number): void {
-        //     this.context.fillStyle = "gray";
-        //     this.context.font = "14px";
-        //     this.context.fillText("Boids: " + String(count), 20, 20);
-        // }
+        private createMeshes(boids: Boids): void {
+            for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
+                let boid = boids.boids[index];
+                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
+                var material: THREE.Material;
+                switch (View.boidMaterial) {
+                    case Material.Lambert: material = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                    default              : material = new THREE.MeshBasicMaterial( {color: boid.color, transparent: true, opacity: boid.opacity } ); break;
+                }
+                let mesh = new THREE.Mesh(coneGeometry, material);
+                mesh.position.set(boid.position.x, boid.position.y, boid.position.z);
+                this.setRotation(mesh, boid);
+                this.scene.add(mesh);
+                this.meshes.push(mesh);
+            }
+        }
     }
 
     class Settings {
@@ -378,28 +297,31 @@ namespace Shos.Boids.Application3D {
 
         static get() : any {
             return  {
-                boidSize           : View .boidSize             ,
-                randomParameter    : Boid .maximumRandomDistance,
-                initialBoidCount   : Boids.initialBoidCount     ,
-                maximumSpeed       : Boids.maximumSpeed         ,
-                cohesionParameter  : Boids.cohesionParameter    ,
-                separationParameter: Boids.separationParameter  ,
+                boidSize           : View .boidSize                      ,
+                boidMaterial       : View .boidMaterial != Material.Basic,
+                randomParameter    : Boid .maximumRandomDistance         ,
+                initialBoidCount   : Boids.initialBoidCount              ,
+                maximumSpeed       : Boids.maximumSpeed                  ,
+                cohesionParameter  : Boids.cohesionParameter             ,
+                separationParameter: Boids.separationParameter           ,
                 alignmentParameter : Boids.alignmentParameter
             };
         }
 
-        static set(boidSize: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-            View .boidSize              = boidSize           ;
-            Boid .maximumRandomDistance = randomParameter    ;
-            Boids.initialBoidCount      = initialBoidCount   ;
-            Boids.maximumSpeed          = maximumSpeed       ;
-            Boids.cohesionParameter     = cohesionParameter  ;
-            Boids.separationParameter   = separationParameter;
-            Boids.alignmentParameter    = alignmentParameter ;
+        static set(boidSize: number, boidMaterial: boolean, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
+            View .boidSize              = boidSize                                        ;
+            View .boidMaterial          = boidMaterial ? Material.Lambert : Material.Basic;
+            Boid .maximumRandomDistance = randomParameter                                 ;
+            Boids.initialBoidCount      = initialBoidCount                                ;
+            Boids.maximumSpeed          = maximumSpeed                                    ;
+            Boids.cohesionParameter     = cohesionParameter                               ;
+            Boids.separationParameter   = separationParameter                             ;
+            Boids.alignmentParameter    = alignmentParameter                              ;
         }
 
         static reset(): void {
             View .boidSize              = View .defaultBoidSize             ;
+            View .boidMaterial          = View .defaultBoidMaterial         ;
             Boid .maximumRandomDistance = Boid .defaultMaximumRandomDistance;
             Boids.initialBoidCount      = Boids.defaultInitialBoidCount     ;
             Boids.maximumSpeed          = Boids.defaultMaximumSpeed         ;
@@ -418,13 +340,13 @@ namespace Shos.Boids.Application3D {
         static load(): boolean {
             if (!window.localStorage)
                 return false;
-            var jsonText = window.localStorage.getItem(Settings.key);
+            let jsonText = window.localStorage.getItem(Settings.key);
             if (jsonText == null)
                 return false;
-            var data = JSON.parse(jsonText);
+            let data = JSON.parse(jsonText);
             if (data == null)
                 return false;
-            Settings.set(data.boidSize, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
+            Settings.set(data.boidSize, data.boidMaterial, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
             return true;
         }
     }
@@ -444,12 +366,13 @@ namespace Shos.Boids.Application3D {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
+                settingForm.materialCheckBox.checked                ,
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
                 Number(settingForm.maximumSpeedTextBox       .value),
                 Number(settingForm.cohesionParameterTextBox  .value),
                 Number(settingForm.separationParameterTextBox.value),
-                Number(settingForm.alignmentParameterTextBox .value)
+                Number(settingForm.alignmentParameterTextBox .value),
             );
             Settings.save();
         }
@@ -469,6 +392,10 @@ namespace Shos.Boids.Application3D {
             SettingsPanel.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
             SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
             SettingsPanel.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
+
+            let elements = document.getElementsByName("materialCheckBox");
+            if (elements.length > 0)
+                (<HTMLInputElement>(elements[0])).checked = settings.boidMaterial;
         }
 
         private static setToInput(inputName: string, value: number): void {
@@ -479,7 +406,6 @@ namespace Shos.Boids.Application3D {
     }
 
     class Program {
-        //private static fps              =  30;
         private static createTime       =  10;
         private static startTime        = 100;
         private static colorValueBase   = 0x40; // 0x00~0xff
@@ -493,16 +419,13 @@ namespace Shos.Boids.Application3D {
         constructor() {
             Settings.load();
             setTimeout(() => this.initialize(), Program.startTime);
-            //this.initialize();
         }
 
         private initialize(): void {
             this.bindEvents();
             this.view.update();
             this.appendBoids(Boids.initialBoidCount);
-            //setInterval(() => this.step(), 1000 / Program.fps);
             setTimeout(() => this.step(), Program.startTime);
-            //this.step();
 
             SettingsPanel.initialize();
         }
@@ -518,13 +441,13 @@ namespace Shos.Boids.Application3D {
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
-            var rect = element.getBoundingClientRect();
+            let rect = element.getBoundingClientRect();
             return new Vector3D(e.clientX - rect.left, e.clientY - rect.top);
         }
 
         private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector3D {
-            var rect = element.getBoundingClientRect();
-            var touch = e.changedTouches[0];
+            let rect = element.getBoundingClientRect();
+            let touch = e.changedTouches[0];
             return new Vector3D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
@@ -564,5 +487,4 @@ namespace Shos.Boids.Application3D {
     }
 
     onload = () => new Program();
-    //onload = () => init();
 }

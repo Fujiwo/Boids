@@ -290,10 +290,10 @@ namespace Shos.Boids.Application2D {
         static load(): boolean {
             if (!window.localStorage)
                 return false;
-            var jsonText = window.localStorage.getItem(Settings.key);
+            let jsonText = window.localStorage.getItem(Settings.key);
             if (jsonText == null)
                 return false;
-            var data = JSON.parse(jsonText);
+            let data = JSON.parse(jsonText);
             if (data == null)
                 return false;
             Settings.set(data.boidSize, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
@@ -351,7 +351,6 @@ namespace Shos.Boids.Application2D {
     }
 
     class Program {
-        //private static fps              =  30;
         private static createTime       =  10;
         private static startTime        = 100;
         private static colorValueBase   = 0xa0; // 0x00~0xff
@@ -371,7 +370,6 @@ namespace Shos.Boids.Application2D {
             this.bindEvents();
             this.view.update();
             this.appendBoids(Boids.initialBoidCount);
-            //setInterval(() => this.step(), 1000 / Program.fps);
             setTimeout(() => this.step(), Program.startTime);
             SettingsPanel.initialize();
         }
@@ -385,13 +383,13 @@ namespace Shos.Boids.Application2D {
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
-            var rect = element.getBoundingClientRect();
+            let rect = element.getBoundingClientRect();
             return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
         }
 
         private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector2D {
-            var rect = element.getBoundingClientRect();
-            var touch = e.changedTouches[0];
+            let rect = element.getBoundingClientRect();
+            let touch = e.changedTouches[0];
             return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
