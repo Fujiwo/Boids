@@ -310,6 +310,14 @@ namespace Shos.Boids.Application2D {
         private static initializeHandlers(): void {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
+
+            SettingsPanel.enableEnterKey("boidSizeTextBox"           );
+            SettingsPanel.enableEnterKey("randomParameterTextBox"    );
+            SettingsPanel.enableEnterKey("initialBoidCountTextBox"   );
+            SettingsPanel.enableEnterKey("maximumSpeedTextBox"       );
+            SettingsPanel.enableEnterKey("cohesionParameterTextBox"  );
+            SettingsPanel.enableEnterKey("separationParameterTextBox");
+            SettingsPanel.enableEnterKey("alignmentParameterTextBox" );
         }
 
         private static onFormSubmit(): void {
@@ -348,6 +356,17 @@ namespace Shos.Boids.Application2D {
             if (elements.length > 0)
                 (<HTMLInputElement>(elements[0])).value = String(value);
         }
+
+        private static enableEnterKey(inputName: string): void {
+            let elements = document.getElementsByName(inputName);
+            if (elements.length > 0)
+                elements[0].addEventListener("keypress", SettingsPanel.onKeyPress);
+        }
+
+        private static onKeyPress() {
+            if (window.event != null && (<any>window.event).keyCode == 13)
+                SettingsPanel.onFormSubmit();
+        }
     }
 
     class Program {

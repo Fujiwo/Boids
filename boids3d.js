@@ -180,9 +180,9 @@ var Shos;
                     boid.velocity.plusEqual(average.minus(boid.velocity).divideBy(Boids.alignmentParameter));
                 };
                 Boids.defaultInitialBoidCount = 250;
-                Boids.defaultMaximumSpeed = 8;
+                Boids.defaultMaximumSpeed = 12;
                 Boids.defaultCohesionParameter = 100;
-                Boids.defaultSeparationParameter = 10;
+                Boids.defaultSeparationParameter = 16;
                 Boids.defaultAlignmentParameter = 7;
                 Boids.initialBoidCount = Boids.defaultInitialBoidCount;
                 Boids.maximumSpeed = Boids.defaultMaximumSpeed;
@@ -379,6 +379,14 @@ var Shos;
                 SettingsPanel.initializeHandlers = function () {
                     document.getElementById("submitButton").onclick = SettingsPanel.onFormSubmit;
                     document.getElementById("resetButton").onclick = SettingsPanel.onReset;
+                    SettingsPanel.enableEnterKey("boidSizeTextBox");
+                    SettingsPanel.enableEnterKey("boidMaterialTextBox");
+                    SettingsPanel.enableEnterKey("randomParameterTextBox");
+                    SettingsPanel.enableEnterKey("initialBoidCountTextBox");
+                    SettingsPanel.enableEnterKey("maximumSpeedTextBox");
+                    SettingsPanel.enableEnterKey("cohesionParameterTextBox");
+                    SettingsPanel.enableEnterKey("separationParameterTextBox");
+                    SettingsPanel.enableEnterKey("alignmentParameterTextBox");
                 };
                 SettingsPanel.onFormSubmit = function () {
                     var settingForm = document.settingForm;
@@ -406,6 +414,15 @@ var Shos;
                     var elements = document.getElementsByName(inputName);
                     if (elements.length > 0)
                         (elements[0]).value = String(value);
+                };
+                SettingsPanel.enableEnterKey = function (inputName) {
+                    var elements = document.getElementsByName(inputName);
+                    if (elements.length > 0)
+                        elements[0].addEventListener("keypress", SettingsPanel.onKeyPress);
+                };
+                SettingsPanel.onKeyPress = function () {
+                    if (window.event != null && window.event.keyCode == 13)
+                        SettingsPanel.onFormSubmit();
                 };
                 return SettingsPanel;
             }());

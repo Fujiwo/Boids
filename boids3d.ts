@@ -115,9 +115,9 @@ namespace Shos.Boids.Core3D {
 
     export class Boids {
         static defaultInitialBoidCount     = 250;
-        static defaultMaximumSpeed         =   8;
+        static defaultMaximumSpeed         =  12;
         static defaultCohesionParameter    = 100;
-        static defaultSeparationParameter  =  10;
+        static defaultSeparationParameter  =  16;
         static defaultAlignmentParameter   =   7;
 
         static initialBoidCount    = Boids.defaultInitialBoidCount   ;
@@ -394,6 +394,15 @@ namespace Shos.Boids.Application3D {
         private static initializeHandlers(): void {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
+    
+            SettingsPanel.enableEnterKey("boidSizeTextBox"           );
+            SettingsPanel.enableEnterKey("boidMaterialTextBox"       );
+            SettingsPanel.enableEnterKey("randomParameterTextBox"    );
+            SettingsPanel.enableEnterKey("initialBoidCountTextBox"   );
+            SettingsPanel.enableEnterKey("maximumSpeedTextBox"       );
+            SettingsPanel.enableEnterKey("cohesionParameterTextBox"  );
+            SettingsPanel.enableEnterKey("separationParameterTextBox");
+            SettingsPanel.enableEnterKey("alignmentParameterTextBox" );
         }
 
         private static onFormSubmit(): void {
@@ -435,6 +444,17 @@ namespace Shos.Boids.Application3D {
             if (elements.length > 0)
                 (<HTMLInputElement>(elements[0])).value = String(value);
         }
+
+        private static enableEnterKey(inputName: string): void {
+            let elements = document.getElementsByName(inputName);
+            if (elements.length > 0)
+                elements[0].addEventListener("keypress", SettingsPanel.onKeyPress);
+        }
+
+        private static onKeyPress() {
+            if (window.event != null && (<any>window.event).keyCode == 13)
+                SettingsPanel.onFormSubmit();
+        }
     }
 
     class Program {
