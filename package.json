@@ -1,12 +1,31 @@
 {
-  "name": "Boids",
+  "name": "boids",
   "version": "1.0.0",
-  "description": "",
+  "description": "[Boids](https://en.wikipedia.org/wiki/Boids) (an artificial life program) —shoal simulator written in TypeScript— | Sho's Software",
   "main": "boids.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "MIT"
+  "author": "Fujio Kojima",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.109.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-loader": "^8.0.5",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fujiwo/Shos.Boids.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fujiwo/Shos.Boids/issues"
+  },
+  "homepage": "https://github.com/Fujiwo/Shos.Boids#readme"
 }
