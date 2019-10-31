@@ -7,7 +7,7 @@
     <meta name="Author" content="Fujiwo">
     <meta name="Classification" content="Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash;">
     <meta name="Description" content="Boids (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash;">
-    <meta name="keywords" content="Boids,artificial life,TypeScript,JavaScript,WebGL,Three.js,Cross-eyed/Parallel,Free-viewing,Stereoscopy,Stereoscope">
+    <meta name="keywords" content="Boids,artificial life,TypeScript,JavaScript,WebGL,Three.js,Cross-eyed,Parallel,Free-viewing,Stereoscopy,Stereoscope">
     <title>Boids (an artificial life program) 3D (Cross-eyed/Parallel Free-viewing Stereoscopy) &mdash;shoal simulator written in TypeScript with Three.js&mdash; | Sho's Software</title>
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <style>
@@ -38,9 +38,11 @@
         <div>
         <h2 id="titleBar"><a href="https://en.wikipedia.org/wiki/Boids">Boids</a> (an artificial life program) 3D (Cross-eyed/Parallel Free-viewing <a href="https://en.wikipedia.org/wiki/Stereoscopy">Stereoscopy</a>) &mdash;shoal simulator written in TypeScript with Three.js&mdash; | Sho's Software</h2>
             <div>
+                <ul>
+                    <li><a href="./boids.html">2D Version</a></li>
+                    <li><a href="./boids3d.html">3D Version</a></li>
+                </ul>
                 <p>Source code: <a href="https://github.com/Fujiwo/Shos.Boids">Shos.Boids | GitHub</a></p>
-                <a href="./boids.html">2D Version</a>
-                <a href="./boids3d.html">3D Version</a>
             </div>
             <div>
                 <p>Boids is an artificial life simulation originally developed by <a href="http://www.red3d.com/cwr/">Craig Reynolds</a>.
@@ -50,7 +52,17 @@
                     <li>Alignment: steer towards the average heading of the group</li>
                     <li>Cohesion: steer to move toward the average position of the group</li>
                 </ul>
+                <nav>
+                    <p class="navigator">
+                        See also:
+                        <ul>
+                            <li><a href="http://www.red3d.com/cwr/boids/">Boids (Flocks, Herds, and Schools: a Distributed Behavioral Model)</a></li>
+                            <li><a href="https://en.wikipedia.org/wiki/Boids">Boids - Wikipedia</a></li>
+                        </ul>
+                    </p>
+                </nav>
             </div>
+            <hr>
             <div>
                 <form name="settingForm">
                     <label>boid size(*):</label> <input type="number" name="boidSizeTextBox">
@@ -85,16 +97,7 @@
         </table>
     </div>
     <div id="footer">
-        <nav>
-            <p class="navigator">
-                See also:
-                <ul>
-                    <li><a href="http://www.red3d.com/cwr/boids/">Boids (Flocks, Herds, and Schools: a Distributed Behavioral Model)</a></li>
-                    <li><a href="https://en.wikipedia.org/wiki/Boids">Boids - Wikipedia</a></li>
-                </ul>
-            </p>
-        </nav>
-    <div><p class="copyright">Copyright &copy; 2019 Sho's Software</p></div>
+        <div><p class="copyright">Copyright &copy; 2019 Sho's Software</p></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
     <!-- <script src="boids3ds.js"></script> -->

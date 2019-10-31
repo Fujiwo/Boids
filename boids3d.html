@@ -38,9 +38,11 @@
         <div>
         <h2 id="titleBar"><a href="https://en.wikipedia.org/wiki/Boids">Boids</a> (an artificial life program) 3D &mdash;shoal simulator written in TypeScript with Three.js&mdash; | Sho's Software</h2>
             <div>
+                <ul>
+                    <li><a href="./boids.html">2D Version</a></li>
+                    <li><a href="./boids3ds.html">3D (Cross-eyed/Parallel Free-viewing Stereoscopy) Version</a></li>
+                </ul>
                 <p>Source code: <a href="https://github.com/Fujiwo/Shos.Boids">Shos.Boids | GitHub</a></p>
-                <a href="./boids.html">2D Version</a>
-                <a href="./boids3ds.html">3D (Cross-eyed/Parallel Free-viewing Stereoscopy) Version</a>
             </div>
             <div>
                 <p>Boids is an artificial life simulation originally developed by <a href="http://www.red3d.com/cwr/">Craig Reynolds</a>.
@@ -50,7 +52,17 @@
                     <li>Alignment: steer towards the average heading of the group</li>
                     <li>Cohesion: steer to move toward the average position of the group</li>
                 </ul>
+                <nav>
+                    <p class="navigator">
+                        See also:
+                        <ul>
+                            <li><a href="http://www.red3d.com/cwr/boids/">Boids (Flocks, Herds, and Schools: a Distributed Behavioral Model)</a></li>
+                            <li><a href="https://en.wikipedia.org/wiki/Boids">Boids - Wikipedia</a></li>
+                        </ul>
+                    </p>
+                </nav>
             </div>
+            <hr>
             <div>
                 <form name="settingForm">
                     <label>boid size(*):</label> <input type="number" name="boidSizeTextBox">
@@ -75,15 +87,6 @@
         <canvas id="canvas"></canvas>
     </div>
     <div id="footer">
-        <nav>
-            <p class="navigator">
-                See also:
-                <ul>
-                    <li><a href="http://www.red3d.com/cwr/boids/">Boids (Flocks, Herds, and Schools: a Distributed Behavioral Model)</a></li>
-                    <li><a href="https://en.wikipedia.org/wiki/Boids">Boids - Wikipedia</a></li>
-                </ul>
-            </p>
-        </nav>
         <div><p class="copyright">Copyright &copy; 2019 Sho's Software</p></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
