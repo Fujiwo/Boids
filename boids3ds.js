@@ -215,14 +215,16 @@ var Shos;
             })(Material || (Material = {}));
             var Screen = /** @class */ (function () {
                 //private areaMesh: THREE.Mesh;
-                function Screen(canvas) {
+                function Screen(canvas, parallax) {
                     this.onMouseDown = function (clickedPosition) { };
                     this.onMouseUp = function () { };
                     this.size = new Vector3D(1000, 1000);
                     this.scene = new THREE.Scene();
                     this.camera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
                     this.meshes = [];
+                    this.parallax = 0;
                     this.canvas = canvas;
+                    this.parallax = parallax;
                     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
                     this.renderer.setPixelRatio(window.devicePixelRatio);
                     this.renderer.setSize(this.size.x, this.size.y);
@@ -265,17 +267,17 @@ var Shos;
                     return new Vector3D(touch.clientX - rect.left, touch.clientY - rect.top);
                 };
                 Screen.prototype.setCamera = function () {
-                    this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
-                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                    this.camera.position.set(this.size.x / 2 + this.parallax, this.size.y / 2, Screen.defaultCameraDistance);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2 + this.parallax, this.size.y / 2, 0));
                 };
                 Screen.prototype.resetCamera = function () {
                     this.camera.aspect = this.size.x / this.size.y;
-                    this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
-                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                    this.camera.position.set(this.size.x / 2 + this.parallax, this.size.y / 2, this.camera.position.z);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2 + this.parallax, this.size.y / 2, 0));
                 };
                 Screen.prototype.setLight = function () {
-                    this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+                    this.scene.add(new THREE.DirectionalLight(0xffffff, Screen.defaultDirectionalLight));
+                    this.scene.add(new THREE.AmbientLight(0xffffff, Screen.defaultAmbientLight));
                 };
                 Screen.prototype.setRotation = function (mesh, boid) {
                     mesh.rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
@@ -318,6 +320,9 @@ var Shos;
                         this.meshes.push(mesh);
                     }
                 };
+                Screen.defaultCameraDistance = 3000;
+                Screen.defaultDirectionalLight = 2.0;
+                Screen.defaultAmbientLight = 0.5;
                 Screen.defaultBoidSize = 6;
                 Screen.boidSize = Screen.defaultBoidSize;
                 Screen.defaultBoidMaterial = Material.Standard;
@@ -330,10 +335,9 @@ var Shos;
                     var _this = this;
                     this.onMouseDown = function (clickedPosition) { };
                     this.onMouseUp = function () { };
-                    this.leftScreen = new Screen(document.querySelector("#leftCanvas"));
-                    this.rightScreen = new Screen(document.querySelector("#rightCanvas"));
-                    this.leftScreen.moveCamera(new THREE.Vector3(-5000, 0, 0));
-                    this.rightScreen.moveCamera(new THREE.Vector3(5000, 0, 0));
+                    this.defaultParallax = 200;
+                    this.leftScreen = new Screen(document.querySelector("#leftCanvas"), this.defaultParallax);
+                    this.rightScreen = new Screen(document.querySelector("#rightCanvas"), -this.defaultParallax);
                     this.leftScreen.onMouseDown = this.rightScreen.onMouseDown = function (position) { return _this.onMouseDown(position); };
                     this.leftScreen.onMouseUp = this.rightScreen.onMouseUp = function () { return _this.onMouseUp(); };
                 }

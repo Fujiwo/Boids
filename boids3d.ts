@@ -206,13 +206,16 @@ namespace Shos.Boids.Application3D {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
 
-        static defaultBoidSize      = 6;
-        static boidSize             = View.defaultBoidSize;
-        static defaultBoidMaterial  = Material.Standard;
-        static boidMaterial         = View.defaultBoidMaterial;
+        static defaultCameraDistance   = 3000;
+        static defaultDirectionalLight = 2.0;
+        static defaultAmbientLight     = 0.5;
+        static defaultBoidSize         = 6;
+        static boidSize                = View.defaultBoidSize;
+        static defaultBoidMaterial     = Material.Standard;
+        static boidMaterial            = View.defaultBoidMaterial;
 
-        size                        = new Vector3D(1000, 1000);
-        canvas                      = <HTMLCanvasElement>document.querySelector("#canvas");
+        size                           = new Vector3D(1000, 1000);
+        canvas                         = <HTMLCanvasElement>document.querySelector("#canvas");
 
         private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
         private scene = new THREE.Scene();
@@ -227,7 +230,7 @@ namespace Shos.Boids.Application3D {
         }
 
         private setCamera() : void {
-            this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
+            this.camera.position.set(this.size.x / 2, this.size.y / 2, View.defaultCameraDistance);
             this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
         }
 
@@ -238,8 +241,8 @@ namespace Shos.Boids.Application3D {
         }
 
         private setLight() : void {
-            this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-            this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+            this.scene.add(new THREE.DirectionalLight(0xffffff, View.defaultDirectionalLight));
+            this.scene.add(new THREE.AmbientLight    (0xffffff, View.defaultAmbientLight    ));
         }
   
         constructor() {

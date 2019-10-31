@@ -206,10 +206,13 @@ namespace Shos.Boids.Application3D2 {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
         
-        static defaultBoidSize      = 6;
-        static boidSize             = Screen.defaultBoidSize;
-        static defaultBoidMaterial  = Material.Standard;
-        static boidMaterial         = Screen.defaultBoidMaterial;
+        static defaultCameraDistance   = 3000;
+        static defaultDirectionalLight = 2.0;
+        static defaultAmbientLight     = 0.5;
+        static defaultBoidSize         = 6;
+        static boidSize                = Screen.defaultBoidSize;
+        static defaultBoidMaterial     = Material.Standard;
+        static boidMaterial            = Screen.defaultBoidMaterial;
 
         size = new Vector3D(1000, 1000);
         canvas : HTMLCanvasElement;
@@ -219,10 +222,12 @@ namespace Shos.Boids.Application3D2 {
         private camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
         private meshes: THREE.Mesh[] = [];
         private static sizeRate: number = 0.95;
+        private parallax: number = 0;
         //private areaMesh: THREE.Mesh;
 
-        constructor(canvas: HTMLCanvasElement) {
-            this.canvas = canvas;
+        constructor(canvas: HTMLCanvasElement, parallax: number) {
+            this.canvas   = canvas;
+            this.parallax = parallax;
             this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.renderer.setSize(this.size.x, this.size.y);
@@ -271,19 +276,19 @@ namespace Shos.Boids.Application3D2 {
         }
 
         private setCamera() : void {
-            this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
-            this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+            this.camera.position.set(this.size.x / 2 + this.parallax, this.size.y / 2, Screen.defaultCameraDistance);
+            this.camera.lookAt(new THREE.Vector3(this.size.x / 2 + this.parallax, this.size.y / 2, 0));
         }
 
         private resetCamera() : void {
             this.camera.aspect = this.size.x / this.size.y;
-            this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
-            this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+            this.camera.position.set(this.size.x / 2 + this.parallax, this.size.y / 2, this.camera.position.z);
+            this.camera.lookAt(new THREE.Vector3(this.size.x / 2 + this.parallax, this.size.y / 2, 0));
         }
 
         private setLight() : void {
-            this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-            this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+            this.scene.add(new THREE.DirectionalLight(0xffffff, Screen.defaultDirectionalLight));
+            this.scene.add(new THREE.AmbientLight    (0xffffff, Screen.defaultAmbientLight    ));
         }
 
         private setRotation(mesh: THREE.Mesh, boid: Boid): void {
@@ -347,17 +352,16 @@ namespace Shos.Boids.Application3D2 {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
 
-        private leftScreen  = new Screen(<HTMLCanvasElement>document.querySelector("#leftCanvas" ));
-        private rightScreen = new Screen(<HTMLCanvasElement>document.querySelector("#rightCanvas"));
+        defaultParallax = 200;
+
+        private leftScreen  = new Screen(<HTMLCanvasElement>document.querySelector("#leftCanvas" ),  this.defaultParallax);
+        private rightScreen = new Screen(<HTMLCanvasElement>document.querySelector("#rightCanvas"), -this.defaultParallax);
 
         get size() {
             return this.leftScreen.size;
         }
  
         constructor() {
-            this.leftScreen .moveCamera(new THREE.Vector3(-5000, 0, 0));
-            this.rightScreen.moveCamera(new THREE.Vector3( 5000, 0, 0));
-
             this.leftScreen.onMouseDown = this.rightScreen.onMouseDown = position => this.onMouseDown(position);
             this.leftScreen.onMouseUp   = this.rightScreen.onMouseUp   = ()       => this.onMouseUp  ();
         }

@@ -234,7 +234,7 @@ var Shos;
                     this.camera.position.addVectors(this.camera.position, offset);
                 };
                 View.prototype.setCamera = function () {
-                    this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
+                    this.camera.position.set(this.size.x / 2, this.size.y / 2, View.defaultCameraDistance);
                     this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
                 };
                 View.prototype.resetCamera = function () {
@@ -243,8 +243,8 @@ var Shos;
                     this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
                 };
                 View.prototype.setLight = function () {
-                    this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+                    this.scene.add(new THREE.DirectionalLight(0xffffff, View.defaultDirectionalLight));
+                    this.scene.add(new THREE.AmbientLight(0xffffff, View.defaultAmbientLight));
                 };
                 View.prototype.update = function () {
                     var panel = document.getElementById("panel");
@@ -317,6 +317,9 @@ var Shos;
                         this.meshes.push(mesh);
                     }
                 };
+                View.defaultCameraDistance = 3000;
+                View.defaultDirectionalLight = 2.0;
+                View.defaultAmbientLight = 0.5;
                 View.defaultBoidSize = 6;
                 View.boidSize = View.defaultBoidSize;
                 View.defaultBoidMaterial = Material.Standard;
