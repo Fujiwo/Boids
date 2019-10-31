@@ -207,9 +207,12 @@ var Shos;
             var Boid = Shos.Boids.Core2D.Boid;
             var View = /** @class */ (function () {
                 function View() {
+                    this.onMouseDown = function (clickedPosition) { };
+                    this.onMouseUp = function () { };
                     this.size = new Vector2D();
                     this.canvas = document.querySelector("#canvas");
                     this.context = this.canvas.getContext("2d");
+                    this.bindEvents();
                 }
                 View.prototype.update = function () {
                     var panel = document.getElementById("panel");
@@ -218,6 +221,22 @@ var Shos;
                 };
                 View.prototype.drawBoids = function (boids) {
                     this.drawAllBoid(boids.boids);
+                };
+                View.prototype.bindEvents = function () {
+                    var _this = this;
+                    this.canvas.addEventListener("mousedown", function (e) { return _this.onMouseDown(View.getMousePosition(_this.canvas, e)); });
+                    this.canvas.addEventListener("touchstart", function (e) { return _this.onMouseDown(View.getTouchPosition(_this.canvas, e)); });
+                    this.canvas.addEventListener("mouseup", function () { return _this.onMouseUp(); });
+                    this.canvas.addEventListener("touchend", function () { return _this.onMouseUp(); });
+                };
+                View.getMousePosition = function (element, e) {
+                    var rect = element.getBoundingClientRect();
+                    return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
+                };
+                View.getTouchPosition = function (element, e) {
+                    var rect = element.getBoundingClientRect();
+                    var touch = e.changedTouches[0];
+                    return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
                 };
                 View.prototype.drawAllBoid = function (boids) {
                     this.context.clearRect(0, 0, this.size.x, this.size.y);
@@ -368,20 +387,9 @@ var Shos;
                 };
                 Program.prototype.bindEvents = function () {
                     var _this = this;
-                    this.view.canvas.addEventListener("mousedown", function (e) { return _this.appendBoids(1, Program.getMousePosition(_this.view.canvas, e)); });
-                    this.view.canvas.addEventListener("touchstart", function (e) { return _this.appendBoids(1, Program.getTouchPosition(_this.view.canvas, e)); });
-                    this.view.canvas.addEventListener("mouseup", function () { return clearInterval(_this.appendTimer); });
-                    this.view.canvas.addEventListener("touchend", function () { return clearInterval(_this.appendTimer); });
+                    this.view.onMouseDown = function (position) { return _this.appendBoids(1, position); };
+                    this.view.onMouseUp = function () { return clearInterval(_this.appendTimer); };
                     window.addEventListener("resize", function () { return _this.view.update(); });
-                };
-                Program.getMousePosition = function (element, e) {
-                    var rect = element.getBoundingClientRect();
-                    return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
-                };
-                Program.getTouchPosition = function (element, e) {
-                    var rect = element.getBoundingClientRect();
-                    var touch = e.changedTouches[0];
-                    return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
                 };
                 Program.prototype.appendBoids = function (count, position) {
                     var _this = this;

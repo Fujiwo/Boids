@@ -1,6 +1,6 @@
 /// <reference path="three.d.ts" />
 
-namespace Shos.Boids.Core3D.Helper {
+namespace Shos.Boids.Core3DS.Helper {
     export class Vector3D {
         x: number;
         y: number;
@@ -64,8 +64,8 @@ namespace Shos.Boids.Core3D.Helper {
     } 
 }
 
-namespace Shos.Boids.Core3D {
-    import Vector3D =  Shos.Boids.Core3D.Helper.Vector3D;
+namespace Shos.Boids.Core3DS {
+    import Vector3D =  Shos.Boids.Core3DS.Helper.Vector3D;
 
     export class Boid {
         static defaultMaximumRandomDistance = 2;
@@ -193,37 +193,81 @@ namespace Shos.Boids.Core3D {
     }
 }
 
-namespace Shos.Boids.Application3D {
-    import Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
-    import Boids    = Shos.Boids.Core3D.Boids;
-    import Boid     = Shos.Boids.Core3D.Boid;
+namespace Shos.Boids.Application3D2 {
+    import Vector3D = Shos.Boids.Core3DS.Helper.Vector3D;
+    import Boids    = Shos.Boids.Core3DS.Boids;
+    import Boid     = Shos.Boids.Core3DS.Boid;
 
     enum Material {
         Basic, Standard, Normal, Lambert, Phong, First = Basic, Last = Phong
     }
 
-    class View {
+    class Screen {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
-
+        
         static defaultBoidSize      = 6;
-        static boidSize             = View.defaultBoidSize;
+        static boidSize             = Screen.defaultBoidSize;
         static defaultBoidMaterial  = Material.Standard;
-        static boidMaterial         = View.defaultBoidMaterial;
+        static boidMaterial         = Screen.defaultBoidMaterial;
 
-        size                        = new Vector3D(1000, 1000);
-        canvas                      = <HTMLCanvasElement>document.querySelector("#canvas");
+        size = new Vector3D(1000, 1000);
+        canvas : HTMLCanvasElement;
 
-        private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+        private renderer: THREE.WebGLRenderer;
         private scene = new THREE.Scene();
         private camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
         private meshes: THREE.Mesh[] = [];
+        private static sizeRate: number = 0.95;
         //private areaMesh: THREE.Mesh;
 
-        private static sizeRate: number = 0.95;
+        constructor(canvas: HTMLCanvasElement) {
+            this.canvas = canvas;
+            this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.setSize(this.size.x, this.size.y);
+            this.setCamera();
+            this.setLight();
+            //this.areaMesh = this.createAreaMesh();
+            this.bindEvents();
+        }
 
         moveCamera(offset: THREE.Vector3) : void {
             this.camera.position.addVectors(this.camera.position, offset);
+        }
+
+        update(): void {
+            let panel = <HTMLDivElement>document.getElementById("panel");
+            this.size.x = Math.round(window.innerWidth / 2 * Screen.sizeRate);
+            this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * Screen.sizeRate);
+            this.size.z = Math.sqrt(this.size.x * this.size.y);
+            this.renderer.setSize(this.size.x, this.size.y);
+            this.resetCamera();
+            //this.updateAreaMesh();
+        }
+
+        drawBoids(boids: Boids): void {
+            this.updateMeshes(boids);
+            this.createMeshes(boids);
+            this.renderer.render(this.scene, this.camera);
+        }
+
+        private bindEvents(): void {
+            this.canvas.addEventListener("mousedown" , e  => this.onMouseDown(Screen.getMousePosition(this.canvas, e)));
+            this.canvas.addEventListener("touchstart", e  => this.onMouseDown(Screen.getTouchPosition(this.canvas, e)));
+            this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
+            this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
+        }
+
+        private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
+            let rect = element.getBoundingClientRect();
+            return new Vector3D(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector3D {
+            let rect = element.getBoundingClientRect();
+            let touch = e.changedTouches[0];
+            return new Vector3D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
         private setCamera() : void {
@@ -240,49 +284,6 @@ namespace Shos.Boids.Application3D {
         private setLight() : void {
             this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
             this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
-        }
-  
-        constructor() {
-            this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(this.size.x, this.size.y);
-            this.setCamera();
-            this.setLight();
-            //this.areaMesh = this.createAreaMesh();
-            this.bindEvents();
-        }
-
-        update(): void {
-            let panel = <HTMLDivElement>document.getElementById("panel");
-            this.size.x = Math.round(window.innerWidth * View.sizeRate);
-            this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
-            this.size.z = Math.sqrt(this.size.x * this.size.y);
-            this.renderer.setSize(this.size.x, this.size.y);
-            this.resetCamera();
-            //this.updateAreaMesh();
-        }
-
-        drawBoids(boids: Boids): void {
-            this.updateMeshes(boids);
-            this.createMeshes(boids);
-            this.renderer.render(this.scene, this.camera);
-        }
-
-        private bindEvents(): void {
-            this.canvas.addEventListener("mousedown" , e  => this.onMouseDown(View.getMousePosition(this.canvas, e)));
-            this.canvas.addEventListener("touchstart", e  => this.onMouseDown(View.getTouchPosition(this.canvas, e)));
-            this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
-            this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
-        }
-
-        private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
-            let rect = element.getBoundingClientRect();
-            return new Vector3D(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector3D {
-            let rect = element.getBoundingClientRect();
-            let touch = e.changedTouches[0];
-            return new Vector3D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
         private setRotation(mesh: THREE.Mesh, boid: Boid): void {
@@ -302,9 +303,9 @@ namespace Shos.Boids.Application3D {
         private createMeshes(boids: Boids): void {
             for (let index = this.meshes.length, boidsLength =  boids.boids.length; this.meshes.length < boidsLength; index++) {
                 let boid = boids.boids[index];
-                let coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
+                let coneGeometry = new THREE.ConeGeometry(Screen.boidSize, Screen.boidSize * 7, 6);
                 var material: THREE.Material;
-                switch (View.boidMaterial) {
+                switch (Screen.boidMaterial) {
                     case Material.Standard: material = new THREE.MeshStandardMaterial( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
                     case Material.Normal  : material = new THREE.MeshNormalMaterial  ( {                    transparent: true, opacity: boid.opacity } ); break;
                     case Material.Lambert : material = new THREE.MeshLambertMaterial ( { color: boid.color, transparent: true, opacity: boid.opacity } ); break;
@@ -342,13 +343,48 @@ namespace Shos.Boids.Application3D {
         // }
     }
 
+    class View {
+        onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
+        onMouseUp  : () => void = () => {};
+
+        private leftScreen  = new Screen(<HTMLCanvasElement>document.querySelector("#leftCanvas" ));
+        private rightScreen = new Screen(<HTMLCanvasElement>document.querySelector("#rightCanvas"));
+
+        get size() {
+            return this.leftScreen.size;
+        }
+ 
+        constructor() {
+            this.leftScreen .moveCamera(new THREE.Vector3(-5000, 0, 0));
+            this.rightScreen.moveCamera(new THREE.Vector3( 5000, 0, 0));
+
+            this.leftScreen.onMouseDown = this.rightScreen.onMouseDown = position => this.onMouseDown(position);
+            this.leftScreen.onMouseUp   = this.rightScreen.onMouseUp   = ()       => this.onMouseUp  ();
+        }
+
+        moveCamera(offset: THREE.Vector3) : void {
+            this.leftScreen .moveCamera(offset);
+            this.rightScreen.moveCamera(offset);
+        }
+
+        update(): void {
+            this.leftScreen .update();
+            this.rightScreen.update();
+        }
+
+        drawBoids(boids: Boids): void {
+            this.leftScreen .drawBoids(boids);
+            this.rightScreen.drawBoids(boids);
+        }
+    }
+
     class Settings {
         private static key = "ShoBoids3D";
 
         static get() : any {
             return  {
-                boidSize           : View .boidSize             ,
-                boidMaterial       : <number>View.boidMaterial  ,
+                boidSize           : Screen.boidSize            ,
+                boidMaterial       : <number>Screen.boidMaterial,
                 randomParameter    : Boid .maximumRandomDistance,
                 initialBoidCount   : Boids.initialBoidCount     ,
                 maximumSpeed       : Boids.maximumSpeed         ,
@@ -359,8 +395,8 @@ namespace Shos.Boids.Application3D {
         }
 
         static set(boidSize: number, boidMaterial: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-            View .boidSize              = boidSize              ;
-            View .boidMaterial          = Settings.toMaterial(boidMaterial);
+            Screen.boidSize             = boidSize              ;
+            Screen.boidMaterial         = Settings.toMaterial(boidMaterial);
             Boid .maximumRandomDistance = randomParameter       ;
             Boids.initialBoidCount      = initialBoidCount      ;
             Boids.maximumSpeed          = maximumSpeed          ;
@@ -376,8 +412,8 @@ namespace Shos.Boids.Application3D {
         }
 
         static reset(): void {
-            View .boidSize              = View .defaultBoidSize             ;
-            View .boidMaterial          = View .defaultBoidMaterial         ;
+            Screen.boidSize             = Screen.defaultBoidSize            ;
+            Screen.boidMaterial         = Screen.defaultBoidMaterial        ;
             Boid .maximumRandomDistance = Boid .defaultMaximumRandomDistance;
             Boids.initialBoidCount      = Boids.defaultInitialBoidCount     ;
             Boids.maximumSpeed          = Boids.defaultMaximumSpeed         ;
@@ -517,6 +553,11 @@ namespace Shos.Boids.Application3D {
         private bindEvents(): void {
             this.view.onMouseDown = position => this.appendBoids(1, position);
             this.view.onMouseUp   = ()       => clearInterval(this.appendTimer);
+    
+            // this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
+            // this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
+            // this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
+            // this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
             window.addEventListener("resize", () =>  this.view.update());
             (<HTMLInputElement>document.getElementById("forwardButton" )).onclick = () => this.view.moveCamera(new THREE.Vector3(0, 0, -1000));
             (<HTMLInputElement>document.getElementById("backwardButton")).onclick = () => this.view.moveCamera(new THREE.Vector3(0, 0,  1000));

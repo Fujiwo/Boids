@@ -4,8 +4,8 @@ var Shos;
 (function (Shos) {
     var Boids;
     (function (Boids) {
-        var Core3D;
-        (function (Core3D) {
+        var Core3DS;
+        (function (Core3DS) {
             var Helper;
             (function (Helper) {
                 var Vector3D = /** @class */ (function () {
@@ -63,16 +63,16 @@ var Shos;
                     return Vector3D;
                 }());
                 Helper.Vector3D = Vector3D;
-            })(Helper = Core3D.Helper || (Core3D.Helper = {}));
-        })(Core3D = Boids.Core3D || (Boids.Core3D = {}));
+            })(Helper = Core3DS.Helper || (Core3DS.Helper = {}));
+        })(Core3DS = Boids.Core3DS || (Boids.Core3DS = {}));
     })(Boids = Shos.Boids || (Shos.Boids = {}));
 })(Shos || (Shos = {}));
 (function (Shos) {
     var Boids;
     (function (Boids_1) {
-        var Core3D;
-        (function (Core3D) {
-            var Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
+        var Core3DS;
+        (function (Core3DS) {
+            var Vector3D = Shos.Boids.Core3DS.Helper.Vector3D;
             var Boid = /** @class */ (function () {
                 function Boid(position, velocity, color, opacity) {
                     if (position === void 0) { position = new Vector3D(); }
@@ -122,7 +122,7 @@ var Shos;
                 Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
                 return Boid;
             }());
-            Core3D.Boid = Boid;
+            Core3DS.Boid = Boid;
             var Boids = /** @class */ (function () {
                 function Boids() {
                     this.boids = [];
@@ -191,18 +191,18 @@ var Shos;
                 Boids.alignmentParameter = Boids.defaultAlignmentParameter;
                 return Boids;
             }());
-            Core3D.Boids = Boids;
-        })(Core3D = Boids_1.Core3D || (Boids_1.Core3D = {}));
+            Core3DS.Boids = Boids;
+        })(Core3DS = Boids_1.Core3DS || (Boids_1.Core3DS = {}));
     })(Boids = Shos.Boids || (Shos.Boids = {}));
 })(Shos || (Shos = {}));
 (function (Shos) {
     var Boids;
     (function (Boids_2) {
-        var Application3D;
-        (function (Application3D) {
-            var Vector3D = Shos.Boids.Core3D.Helper.Vector3D;
-            var Boids = Shos.Boids.Core3D.Boids;
-            var Boid = Shos.Boids.Core3D.Boid;
+        var Application3D2;
+        (function (Application3D2) {
+            var Vector3D = Shos.Boids.Core3DS.Helper.Vector3D;
+            var Boids = Shos.Boids.Core3DS.Boids;
+            var Boid = Shos.Boids.Core3DS.Boid;
             var Material;
             (function (Material) {
                 Material[Material["Basic"] = 0] = "Basic";
@@ -213,16 +213,17 @@ var Shos;
                 Material[Material["First"] = 0] = "First";
                 Material[Material["Last"] = 4] = "Last";
             })(Material || (Material = {}));
-            var View = /** @class */ (function () {
-                function View() {
+            var Screen = /** @class */ (function () {
+                //private areaMesh: THREE.Mesh;
+                function Screen(canvas) {
                     this.onMouseDown = function (clickedPosition) { };
                     this.onMouseUp = function () { };
                     this.size = new Vector3D(1000, 1000);
-                    this.canvas = document.querySelector("#canvas");
-                    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
                     this.scene = new THREE.Scene();
                     this.camera = new THREE.PerspectiveCamera(45, this.size.x / this.size.y, 1, 100000);
                     this.meshes = [];
+                    this.canvas = canvas;
+                    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
                     this.renderer.setPixelRatio(window.devicePixelRatio);
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.setCamera();
@@ -230,70 +231,70 @@ var Shos;
                     //this.areaMesh = this.createAreaMesh();
                     this.bindEvents();
                 }
-                View.prototype.moveCamera = function (offset) {
+                Screen.prototype.moveCamera = function (offset) {
                     this.camera.position.addVectors(this.camera.position, offset);
                 };
-                View.prototype.setCamera = function () {
-                    this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
-                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-                };
-                View.prototype.resetCamera = function () {
-                    this.camera.aspect = this.size.x / this.size.y;
-                    this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
-                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
-                };
-                View.prototype.setLight = function () {
-                    this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
-                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
-                };
-                View.prototype.update = function () {
+                Screen.prototype.update = function () {
                     var panel = document.getElementById("panel");
-                    this.size.x = Math.round(window.innerWidth * View.sizeRate);
-                    this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+                    this.size.x = Math.round(window.innerWidth / 2 * Screen.sizeRate);
+                    this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * Screen.sizeRate);
                     this.size.z = Math.sqrt(this.size.x * this.size.y);
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.resetCamera();
                     //this.updateAreaMesh();
                 };
-                View.prototype.drawBoids = function (boids) {
+                Screen.prototype.drawBoids = function (boids) {
                     this.updateMeshes(boids);
                     this.createMeshes(boids);
                     this.renderer.render(this.scene, this.camera);
                 };
-                View.prototype.bindEvents = function () {
+                Screen.prototype.bindEvents = function () {
                     var _this = this;
-                    this.canvas.addEventListener("mousedown", function (e) { return _this.onMouseDown(View.getMousePosition(_this.canvas, e)); });
-                    this.canvas.addEventListener("touchstart", function (e) { return _this.onMouseDown(View.getTouchPosition(_this.canvas, e)); });
+                    this.canvas.addEventListener("mousedown", function (e) { return _this.onMouseDown(Screen.getMousePosition(_this.canvas, e)); });
+                    this.canvas.addEventListener("touchstart", function (e) { return _this.onMouseDown(Screen.getTouchPosition(_this.canvas, e)); });
                     this.canvas.addEventListener("mouseup", function () { return _this.onMouseUp(); });
                     this.canvas.addEventListener("touchend", function () { return _this.onMouseUp(); });
                 };
-                View.getMousePosition = function (element, e) {
+                Screen.getMousePosition = function (element, e) {
                     var rect = element.getBoundingClientRect();
                     return new Vector3D(e.clientX - rect.left, e.clientY - rect.top);
                 };
-                View.getTouchPosition = function (element, e) {
+                Screen.getTouchPosition = function (element, e) {
                     var rect = element.getBoundingClientRect();
                     var touch = e.changedTouches[0];
                     return new Vector3D(touch.clientX - rect.left, touch.clientY - rect.top);
                 };
-                View.prototype.setRotation = function (mesh, boid) {
+                Screen.prototype.setCamera = function () {
+                    this.camera.position.set(this.size.x / 2, this.size.y / 2, 3000);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                };
+                Screen.prototype.resetCamera = function () {
+                    this.camera.aspect = this.size.x / this.size.y;
+                    this.camera.position.set(this.size.x / 2, this.size.y / 2, this.camera.position.z);
+                    this.camera.lookAt(new THREE.Vector3(this.size.x / 2, this.size.y / 2, 0));
+                };
+                Screen.prototype.setLight = function () {
+                    this.scene.add(new THREE.DirectionalLight(0xFFFFFF, 2.0));
+                    this.scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+                };
+                Screen.prototype.setRotation = function (mesh, boid) {
                     mesh.rotation.x = Math.atan2(boid.velocity.z, boid.velocity.y);
                     mesh.rotation.y = 0;
                     mesh.rotation.z = -Math.atan2(boid.velocity.x, boid.velocity.y);
                 };
-                View.prototype.updateMeshes = function (boids) {
+                Screen.prototype.updateMeshes = function (boids) {
                     for (var index = 0, meshLength = this.meshes.length; index < meshLength; index++) {
                         var boid = boids.boids[index];
                         this.meshes[index].position.set(boid.position.x, boid.position.y, boid.position.z);
                         this.setRotation(this.meshes[index], boid);
                     }
                 };
-                View.prototype.createMeshes = function (boids) {
+                Screen.prototype.createMeshes = function (boids) {
                     for (var index = this.meshes.length, boidsLength = boids.boids.length; this.meshes.length < boidsLength; index++) {
                         var boid = boids.boids[index];
-                        var coneGeometry = new THREE.ConeGeometry(View.boidSize, View.boidSize * 7, 6);
+                        var coneGeometry = new THREE.ConeGeometry(Screen.boidSize, Screen.boidSize * 7, 6);
                         var material;
-                        switch (View.boidMaterial) {
+                        switch (Screen.boidMaterial) {
                             case Material.Standard:
                                 material = new THREE.MeshStandardMaterial({ color: boid.color, transparent: true, opacity: boid.opacity });
                                 break;
@@ -317,12 +318,44 @@ var Shos;
                         this.meshes.push(mesh);
                     }
                 };
-                View.defaultBoidSize = 6;
-                View.boidSize = View.defaultBoidSize;
-                View.defaultBoidMaterial = Material.Standard;
-                View.boidMaterial = View.defaultBoidMaterial;
-                //private areaMesh: THREE.Mesh;
-                View.sizeRate = 0.95;
+                Screen.defaultBoidSize = 6;
+                Screen.boidSize = Screen.defaultBoidSize;
+                Screen.defaultBoidMaterial = Material.Standard;
+                Screen.boidMaterial = Screen.defaultBoidMaterial;
+                Screen.sizeRate = 0.95;
+                return Screen;
+            }());
+            var View = /** @class */ (function () {
+                function View() {
+                    var _this = this;
+                    this.onMouseDown = function (clickedPosition) { };
+                    this.onMouseUp = function () { };
+                    this.leftScreen = new Screen(document.querySelector("#leftCanvas"));
+                    this.rightScreen = new Screen(document.querySelector("#rightCanvas"));
+                    this.leftScreen.moveCamera(new THREE.Vector3(-5000, 0, 0));
+                    this.rightScreen.moveCamera(new THREE.Vector3(5000, 0, 0));
+                    this.leftScreen.onMouseDown = this.rightScreen.onMouseDown = function (position) { return _this.onMouseDown(position); };
+                    this.leftScreen.onMouseUp = this.rightScreen.onMouseUp = function () { return _this.onMouseUp(); };
+                }
+                Object.defineProperty(View.prototype, "size", {
+                    get: function () {
+                        return this.leftScreen.size;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                View.prototype.moveCamera = function (offset) {
+                    this.leftScreen.moveCamera(offset);
+                    this.rightScreen.moveCamera(offset);
+                };
+                View.prototype.update = function () {
+                    this.leftScreen.update();
+                    this.rightScreen.update();
+                };
+                View.prototype.drawBoids = function (boids) {
+                    this.leftScreen.drawBoids(boids);
+                    this.rightScreen.drawBoids(boids);
+                };
                 return View;
             }());
             var Settings = /** @class */ (function () {
@@ -330,8 +363,8 @@ var Shos;
                 }
                 Settings.get = function () {
                     return {
-                        boidSize: View.boidSize,
-                        boidMaterial: View.boidMaterial,
+                        boidSize: Screen.boidSize,
+                        boidMaterial: Screen.boidMaterial,
                         randomParameter: Boid.maximumRandomDistance,
                         initialBoidCount: Boids.initialBoidCount,
                         maximumSpeed: Boids.maximumSpeed,
@@ -341,8 +374,8 @@ var Shos;
                     };
                 };
                 Settings.set = function (boidSize, boidMaterial, randomParameter, initialBoidCount, maximumSpeed, cohesionParameter, separationParameter, alignmentParameter) {
-                    View.boidSize = boidSize;
-                    View.boidMaterial = Settings.toMaterial(boidMaterial);
+                    Screen.boidSize = boidSize;
+                    Screen.boidMaterial = Settings.toMaterial(boidMaterial);
                     Boid.maximumRandomDistance = randomParameter;
                     Boids.initialBoidCount = initialBoidCount;
                     Boids.maximumSpeed = maximumSpeed;
@@ -358,8 +391,8 @@ var Shos;
                     return value;
                 };
                 Settings.reset = function () {
-                    View.boidSize = View.defaultBoidSize;
-                    View.boidMaterial = View.defaultBoidMaterial;
+                    Screen.boidSize = Screen.defaultBoidSize;
+                    Screen.boidMaterial = Screen.defaultBoidMaterial;
                     Boid.maximumRandomDistance = Boid.defaultMaximumRandomDistance;
                     Boids.initialBoidCount = Boids.defaultInitialBoidCount;
                     Boids.maximumSpeed = Boids.defaultMaximumSpeed;
@@ -474,6 +507,10 @@ var Shos;
                     var _this = this;
                     this.view.onMouseDown = function (position) { return _this.appendBoids(1, position); };
                     this.view.onMouseUp = function () { return clearInterval(_this.appendTimer); };
+                    // this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
+                    // this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
+                    // this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
+                    // this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
                     window.addEventListener("resize", function () { return _this.view.update(); });
                     document.getElementById("forwardButton").onclick = function () { return _this.view.moveCamera(new THREE.Vector3(0, 0, -1000)); };
                     document.getElementById("backwardButton").onclick = function () { return _this.view.moveCamera(new THREE.Vector3(0, 0, 1000)); };
@@ -516,7 +553,7 @@ var Shos;
                 return Program;
             }());
             onload = function () { return new Program(); };
-        })(Application3D = Boids_2.Application3D || (Boids_2.Application3D = {}));
+        })(Application3D2 = Boids_2.Application3D2 || (Boids_2.Application3D2 = {}));
     })(Boids = Shos.Boids || (Shos.Boids = {}));
 })(Shos || (Shos = {}));
-//# sourceMappingURL=boids3d.js.map
+//# sourceMappingURL=boids3ds.js.map

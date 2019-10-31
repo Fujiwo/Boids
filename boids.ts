@@ -210,6 +210,9 @@ namespace Shos.Boids.Application2D {
     import Boid = Shos.Boids.Core2D.Boid;
 
     class View {
+        onMouseDown: (clickedPosition: Vector2D) => void = (clickedPosition: Vector2D) => {};
+        onMouseUp  : () => void = () => {};
+
         private static sizeRate: number = 0.95;
         private context        : CanvasRenderingContext2D;
         canvas                 : HTMLCanvasElement;
@@ -218,6 +221,7 @@ namespace Shos.Boids.Application2D {
         constructor() {
             this.canvas = <HTMLCanvasElement>document.querySelector("#canvas");
             this.context = <CanvasRenderingContext2D>this.canvas.getContext("2d");
+            this.bindEvents();
         }
 
         update(): void {
@@ -228,6 +232,24 @@ namespace Shos.Boids.Application2D {
 
         drawBoids(boids: Boids): void {
             this.drawAllBoid(boids.boids);
+        }
+
+        private bindEvents(): void {
+            this.canvas.addEventListener("mousedown" , e  => this.onMouseDown(View.getMousePosition(this.canvas, e)));
+            this.canvas.addEventListener("touchstart", e  => this.onMouseDown(View.getTouchPosition(this.canvas, e)));
+            this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
+            this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
+        }
+
+        private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
+            let rect = element.getBoundingClientRect();
+            return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector2D {
+            let rect = element.getBoundingClientRect();
+            let touch = e.changedTouches[0];
+            return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
         private drawAllBoid(boids: Boid[]): void {
@@ -405,22 +427,9 @@ namespace Shos.Boids.Application2D {
         }
 
         private bindEvents(): void {
-            this.view.canvas.addEventListener("mousedown", e => this.appendBoids(1, Program.getMousePosition(this.view.canvas, e)));
-            this.view.canvas.addEventListener("touchstart", e => this.appendBoids(1, Program.getTouchPosition(this.view.canvas, e)));
-            this.view.canvas.addEventListener("mouseup", () => clearInterval(this.appendTimer));
-            this.view.canvas.addEventListener("touchend", () => clearInterval(this.appendTimer));
+            this.view.onMouseDown = position => this.appendBoids(1, position);
+            this.view.onMouseUp   = ()       => clearInterval(this.appendTimer);
             window.addEventListener("resize", () =>  this.view.update());
-        }
-
-        private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
-            let rect = element.getBoundingClientRect();
-            return new Vector2D(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        private static getTouchPosition(element: HTMLElement, e: TouchEvent): Vector2D {
-            let rect = element.getBoundingClientRect();
-            let touch = e.changedTouches[0];
-            return new Vector2D(touch.clientX - rect.left, touch.clientY - rect.top);
         }
 
         private appendBoids(count: number, position?: Vector2D): void {
