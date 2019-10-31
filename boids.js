@@ -215,9 +215,11 @@ var Shos;
                     this.bindEvents();
                 }
                 View.prototype.update = function () {
-                    var panel = document.getElementById("panel");
                     this.size.x = this.canvas.width = Math.round(window.innerWidth * View.sizeRate);
-                    this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+                    var screenHeight = View.getScreenHeight();
+                    this.size.y = this.canvas.height = Math.round(Math.max(this.size.x * View.heightRate, screenHeight * View.sizeRate));
+                    if (this.size.y > screenHeight)
+                        window.resizeBy(0, this.size.y - screenHeight);
                 };
                 View.prototype.drawBoids = function (boids) {
                     this.drawAllBoid(boids.boids);
@@ -228,6 +230,11 @@ var Shos;
                     this.canvas.addEventListener("touchstart", function (e) { return _this.onMouseDown(View.getTouchPosition(_this.canvas, e)); });
                     this.canvas.addEventListener("mouseup", function () { return _this.onMouseUp(); });
                     this.canvas.addEventListener("touchend", function () { return _this.onMouseUp(); });
+                };
+                View.getScreenHeight = function () {
+                    var header = document.getElementById("header");
+                    var footer = document.getElementById("footer");
+                    return window.innerHeight - (header == null ? 0 : header.clientHeight) - (footer == null ? 0 : footer.clientHeight);
                 };
                 View.getMousePosition = function (element, e) {
                     var rect = element.getBoundingClientRect();
@@ -250,6 +257,7 @@ var Shos;
                     this.context.fillText("Boids: " + String(count), 20, 20);
                 };
                 View.sizeRate = 0.95;
+                View.heightRate = 0.6180339887498948;
                 return View;
             }());
             var Settings = /** @class */ (function () {
@@ -371,10 +379,10 @@ var Shos;
             var Program = /** @class */ (function () {
                 function Program() {
                     var _this = this;
-                    this.boids = new Boids();
-                    this.view = new View();
                     this.appendTimer = 0;
                     Settings.load();
+                    this.boids = new Boids();
+                    this.view = new View();
                     setTimeout(function () { return _this.initialize(); }, Program.startTime);
                 }
                 Program.prototype.initialize = function () {

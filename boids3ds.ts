@@ -205,11 +205,13 @@ namespace Shos.Boids.Application3D2 {
     class Screen {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
+
+        private static heightRate = 0.6180339887498948;
         
-        static defaultCameraDistance   = 3000;
-        static defaultDirectionalLight = 2.0;
-        static defaultAmbientLight     = 0.5;
-        static defaultBoidSize         = 6;
+        private static defaultCameraDistance   = 3000;
+        private static defaultDirectionalLight = 2.0;
+        private static defaultAmbientLight     = 0.5;
+        private static defaultBoidSize         = 6;
         static boidSize                = Screen.defaultBoidSize;
         static defaultBoidMaterial     = Material.Standard;
         static boidMaterial            = Screen.defaultBoidMaterial;
@@ -244,7 +246,10 @@ namespace Shos.Boids.Application3D2 {
         update(): void {
             let panel = <HTMLDivElement>document.getElementById("panel");
             this.size.x = Math.round(window.innerWidth / 2 * Screen.sizeRate);
-            this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * Screen.sizeRate);
+            let screenHeight = Screen.getScreenHeight();
+            this.size.y = Math.round(Math.max(this.size.x * Screen.heightRate, screenHeight * Screen.sizeRate));
+            if (this.size.y > screenHeight)
+                window.resizeBy(0, this.size.y - screenHeight);
             this.size.z = Math.sqrt(this.size.x * this.size.y);
             this.renderer.setSize(this.size.x, this.size.y);
             this.resetCamera();
@@ -262,6 +267,12 @@ namespace Shos.Boids.Application3D2 {
             this.canvas.addEventListener("touchstart", e  => this.onMouseDown(Screen.getTouchPosition(this.canvas, e)));
             this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
             this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
+        }
+
+        private static getScreenHeight(): number {
+            let header = <HTMLDivElement>document.getElementById("header");
+            let footer = <HTMLDivElement>document.getElementById("footer");
+            return window.innerHeight - (header == null ? 0 : header.clientHeight) - (footer == null ? 0 : footer.clientHeight);
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
@@ -348,14 +359,29 @@ namespace Shos.Boids.Application3D2 {
         // }
     }
 
+    enum FreeViewingStereoscopy {
+        CrossEyed, Parallel, First = CrossEyed, Last = Parallel
+    }
+
     class View {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
 
-        defaultParallax = 200;
+        static defaultFreeViewingStereoscopy: FreeViewingStereoscopy = FreeViewingStereoscopy.CrossEyed  ;
+        static freeViewingStereoscopy       : FreeViewingStereoscopy = View.defaultFreeViewingStereoscopy;
+       
+        private static defaultParallax = 200;
 
-        private leftScreen  = new Screen(<HTMLCanvasElement>document.querySelector("#leftCanvas" ),  this.defaultParallax);
-        private rightScreen = new Screen(<HTMLCanvasElement>document.querySelector("#rightCanvas"), -this.defaultParallax);
+        private static get parallax(): number {
+            switch (View.freeViewingStereoscopy) {
+                case FreeViewingStereoscopy.CrossEyed: return  View.defaultParallax;
+                case FreeViewingStereoscopy.Parallel : return -View.defaultParallax;
+            }
+            return 0;
+        }
+
+        private leftScreen  = new Screen(<HTMLCanvasElement>document.querySelector("#leftCanvas" ),  View.parallax);
+        private rightScreen = new Screen(<HTMLCanvasElement>document.querySelector("#rightCanvas"), -View.parallax);
 
         get size() {
             return this.leftScreen.size;
@@ -387,26 +413,28 @@ namespace Shos.Boids.Application3D2 {
 
         static get() : any {
             return  {
-                boidSize           : Screen.boidSize            ,
-                boidMaterial       : <number>Screen.boidMaterial,
-                randomParameter    : Boid .maximumRandomDistance,
-                initialBoidCount   : Boids.initialBoidCount     ,
-                maximumSpeed       : Boids.maximumSpeed         ,
-                cohesionParameter  : Boids.cohesionParameter    ,
-                separationParameter: Boids.separationParameter  ,
-                alignmentParameter : Boids.alignmentParameter
+                boidSize              : Screen.boidSize                    ,
+                boidMaterial          : <number>Screen.boidMaterial        ,
+                freeViewingStereoscopy: <number>View.freeViewingStereoscopy,
+                randomParameter       : Boid .maximumRandomDistance        ,
+                initialBoidCount      : Boids.initialBoidCount             ,
+                maximumSpeed          : Boids.maximumSpeed                 ,
+                cohesionParameter     : Boids.cohesionParameter            ,
+                separationParameter   : Boids.separationParameter          ,
+                alignmentParameter    : Boids.alignmentParameter
             };
         }
 
-        static set(boidSize: number, boidMaterial: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
-            Screen.boidSize             = boidSize              ;
-            Screen.boidMaterial         = Settings.toMaterial(boidMaterial);
-            Boid .maximumRandomDistance = randomParameter       ;
-            Boids.initialBoidCount      = initialBoidCount      ;
-            Boids.maximumSpeed          = maximumSpeed          ;
-            Boids.cohesionParameter     = cohesionParameter     ;
-            Boids.separationParameter   = separationParameter   ;
-            Boids.alignmentParameter    = alignmentParameter    ;
+        static set(boidSize: number, boidMaterial: number, freeViewingStereoscopy: number, randomParameter: number, initialBoidCount: number, maximumSpeed: number, cohesionParameter: number, separationParameter: number, alignmentParameter: number) : void {
+            Screen.boidSize             = boidSize                                                 ;
+            Screen.boidMaterial         = Settings.toMaterial              (boidMaterial          );
+            View.freeViewingStereoscopy = Settings.toFreeViewingStereoscopy(freeViewingStereoscopy);
+            Boid .maximumRandomDistance = randomParameter                                          ;
+            Boids.initialBoidCount      = initialBoidCount                                         ;
+            Boids.maximumSpeed          = maximumSpeed                                             ;
+            Boids.cohesionParameter     = cohesionParameter                                        ;
+            Boids.separationParameter   = separationParameter                                      ;
+            Boids.alignmentParameter    = alignmentParameter                                       ;
         }
 
         private static toMaterial(value: number): Material {
@@ -415,9 +443,16 @@ namespace Shos.Boids.Application3D2 {
                                         return <Material>value;
         }
 
+        private static toFreeViewingStereoscopy(value: number): FreeViewingStereoscopy {
+            if (value < FreeViewingStereoscopy.First) return FreeViewingStereoscopy.First ;
+            if (value > FreeViewingStereoscopy.Last ) return FreeViewingStereoscopy.Last  ;
+                                                      return <FreeViewingStereoscopy>value;
+        }
+
         static reset(): void {
             Screen.boidSize             = Screen.defaultBoidSize            ;
             Screen.boidMaterial         = Screen.defaultBoidMaterial        ;
+            View.freeViewingStereoscopy = View.defaultFreeViewingStereoscopy;
             Boid .maximumRandomDistance = Boid .defaultMaximumRandomDistance;
             Boids.initialBoidCount      = Boids.defaultInitialBoidCount     ;
             Boids.maximumSpeed          = Boids.defaultMaximumSpeed         ;
@@ -442,7 +477,7 @@ namespace Shos.Boids.Application3D2 {
             let data = JSON.parse(jsonText);
             if (data == null)
                 return false;
-            Settings.set(data.boidSize, data.boidMaterial, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
+            Settings.set(data.boidSize, data.boidMaterial, data.freeViewingStereoscopy, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
             return true;
         }
     }
@@ -457,6 +492,7 @@ namespace Shos.Boids.Application3D2 {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
             (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
+            this.setFreeViewingStereoscopyHandlers();
 
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
             SettingsPanel.enableEnterKey("boidMaterialTextBox"       );
@@ -466,6 +502,12 @@ namespace Shos.Boids.Application3D2 {
             SettingsPanel.enableEnterKey("cohesionParameterTextBox"  );
             SettingsPanel.enableEnterKey("separationParameterTextBox");
             SettingsPanel.enableEnterKey("alignmentParameterTextBox" );
+        }
+
+        private static setFreeViewingStereoscopyHandlers(): void  {
+            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+            for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
+                (<HTMLInputElement>freeViewingStereoscopyElements[index]).onclick = SettingsPanel.onFormSubmit;
         }
 
         private static onFormSubmit(): void {
@@ -483,6 +525,7 @@ namespace Shos.Boids.Application3D2 {
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
                 Number(settingForm.boidMaterialTextBox       .value),
+                this.getFreeViewingStereoscopy(                    ),
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
                 Number(settingForm.maximumSpeedTextBox       .value),
@@ -503,6 +546,7 @@ namespace Shos.Boids.Application3D2 {
             let settings = Settings.get();
             SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
             SettingsPanel.setToInput("boidMaterialTextBox"       , settings.boidMaterial       );
+            this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy                     );
             SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
             SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
             SettingsPanel.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
@@ -527,6 +571,21 @@ namespace Shos.Boids.Application3D2 {
             if (window.event != null && (<any>window.event).keyCode == 13)
                 SettingsPanel.onFormSubmit();
         }
+
+        private static getFreeViewingStereoscopy(): number {
+            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+            for (let index = 0; index < freeViewingStereoscopyElements.length; index++){
+                if ((<HTMLInputElement>freeViewingStereoscopyElements[index]).checked)
+                    return index;
+            }
+            return 0;
+        }
+
+        private static setFreeViewingStereoscopy(freeViewingStereoscopy: number): void  {
+            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+            for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
+                (<HTMLInputElement>freeViewingStereoscopyElements[index]).checked = index == freeViewingStereoscopy;
+        }
     }
 
     class Program {
@@ -536,12 +595,14 @@ namespace Shos.Boids.Application3D2 {
         private static opacityBase1     = 0.40; // 0.0~opacityBase2
         private static opacityBase2     = 0.60; // opacityBase1~1.0
 
-        private boids = new Boids();
-        private view = new View();
+        private boids: Boids;
+        private view : View ;
         private appendTimer: number = 0;
 
         constructor() {
             Settings.load();
+            this.boids = new Boids();
+            this.view  = new View ();
             setTimeout(() => this.initialize(), Program.startTime);
         }
 

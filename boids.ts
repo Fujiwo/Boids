@@ -213,10 +213,11 @@ namespace Shos.Boids.Application2D {
         onMouseDown: (clickedPosition: Vector2D) => void = (clickedPosition: Vector2D) => {};
         onMouseUp  : () => void = () => {};
 
-        private static sizeRate: number = 0.95;
+        private static sizeRate   = 0.95;
+        private static heightRate = 0.6180339887498948;
         private context        : CanvasRenderingContext2D;
         canvas                 : HTMLCanvasElement;
-        size                            = new Vector2D();
+        size                      = new Vector2D();
 
         constructor() {
             this.canvas = <HTMLCanvasElement>document.querySelector("#canvas");
@@ -225,9 +226,11 @@ namespace Shos.Boids.Application2D {
         }
 
         update(): void {
-            let panel = <HTMLDivElement>document.getElementById("panel");
             this.size.x = this.canvas.width  = Math.round(window.innerWidth * View.sizeRate);
-            this.size.y = this.canvas.height = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+            let screenHeight = View.getScreenHeight();
+            this.size.y = this.canvas.height = Math.round(Math.max(this.size.x * View.heightRate, screenHeight * View.sizeRate));
+            if (this.size.y > screenHeight)
+                window.resizeBy(0, this.size.y - screenHeight);
         }
 
         drawBoids(boids: Boids): void {
@@ -239,6 +242,12 @@ namespace Shos.Boids.Application2D {
             this.canvas.addEventListener("touchstart", e  => this.onMouseDown(View.getTouchPosition(this.canvas, e)));
             this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
             this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
+        }
+
+        private static getScreenHeight(): number {
+            let header = <HTMLDivElement>document.getElementById("header");
+            let footer = <HTMLDivElement>document.getElementById("footer");
+            return window.innerHeight - (header == null ? 0 : header.clientHeight) - (footer == null ? 0 : footer.clientHeight);
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector2D {
@@ -409,12 +418,14 @@ namespace Shos.Boids.Application2D {
         private static opacityBase1     = 0.40; // 0.0~opacityBase2
         private static opacityBase2     = 0.60; // opacityBase1~1.0
 
-        private boids = new Boids();
-        private view = new View();
+        private boids: Boids;
+        private view : View ;
         private appendTimer: number = 0;
 
         constructor() {
             Settings.load();
+            this.boids = new Boids();
+            this.view  = new View ();
             setTimeout(() => this.initialize(), Program.startTime);
         }
 

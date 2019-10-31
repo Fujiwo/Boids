@@ -206,7 +206,9 @@ namespace Shos.Boids.Application3D {
         onMouseDown: (clickedPosition: Vector3D) => void = (clickedPosition: Vector3D) => {};
         onMouseUp  : () => void = () => {};
 
-        static defaultCameraDistance   = 3000;
+        private static heightRate = 0.6180339887498948;
+
+        static defaultCameraDistance   = 4000;
         static defaultDirectionalLight = 2.0;
         static defaultAmbientLight     = 0.5;
         static defaultBoidSize         = 6;
@@ -257,7 +259,10 @@ namespace Shos.Boids.Application3D {
         update(): void {
             let panel = <HTMLDivElement>document.getElementById("panel");
             this.size.x = Math.round(window.innerWidth * View.sizeRate);
-            this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+            let screenHeight = View.getScreenHeight();
+            this.size.y = Math.round(Math.max(this.size.x * View.heightRate, screenHeight * View.sizeRate));
+            if (this.size.y > screenHeight)
+                window.resizeBy(0, this.size.y - screenHeight);
             this.size.z = Math.sqrt(this.size.x * this.size.y);
             this.renderer.setSize(this.size.x, this.size.y);
             this.resetCamera();
@@ -275,6 +280,12 @@ namespace Shos.Boids.Application3D {
             this.canvas.addEventListener("touchstart", e  => this.onMouseDown(View.getTouchPosition(this.canvas, e)));
             this.canvas.addEventListener("mouseup"   , () => this.onMouseUp());
             this.canvas.addEventListener("touchend"  , () => this.onMouseUp());
+        }
+
+        private static getScreenHeight(): number {
+            let header = <HTMLDivElement>document.getElementById("header");
+            let footer = <HTMLDivElement>document.getElementById("footer");
+            return window.innerHeight - (header == null ? 0 : header.clientHeight) - (footer == null ? 0 : footer.clientHeight);
         }
 
         private static getMousePosition(element: HTMLElement, e: MouseEvent): Vector3D {
@@ -499,12 +510,14 @@ namespace Shos.Boids.Application3D {
         private static opacityBase1     = 0.40; // 0.0~opacityBase2
         private static opacityBase2     = 0.60; // opacityBase1~1.0
 
-        private boids = new Boids();
-        private view = new View();
+        private boids: Boids;
+        private view : View ;
         private appendTimer: number = 0;
 
         constructor() {
             Settings.load();
+            this.boids = new Boids();
+            this.view  = new View ();
             setTimeout(() => this.initialize(), Program.startTime);
         }
 

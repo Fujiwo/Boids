@@ -249,7 +249,10 @@ var Shos;
                 View.prototype.update = function () {
                     var panel = document.getElementById("panel");
                     this.size.x = Math.round(window.innerWidth * View.sizeRate);
-                    this.size.y = Math.round((window.innerHeight - (panel == null ? 0 : panel.clientHeight)) * View.sizeRate);
+                    var screenHeight = View.getScreenHeight();
+                    this.size.y = Math.round(Math.max(this.size.x * View.heightRate, screenHeight * View.sizeRate));
+                    if (this.size.y > screenHeight)
+                        window.resizeBy(0, this.size.y - screenHeight);
                     this.size.z = Math.sqrt(this.size.x * this.size.y);
                     this.renderer.setSize(this.size.x, this.size.y);
                     this.resetCamera();
@@ -266,6 +269,11 @@ var Shos;
                     this.canvas.addEventListener("touchstart", function (e) { return _this.onMouseDown(View.getTouchPosition(_this.canvas, e)); });
                     this.canvas.addEventListener("mouseup", function () { return _this.onMouseUp(); });
                     this.canvas.addEventListener("touchend", function () { return _this.onMouseUp(); });
+                };
+                View.getScreenHeight = function () {
+                    var header = document.getElementById("header");
+                    var footer = document.getElementById("footer");
+                    return window.innerHeight - (header == null ? 0 : header.clientHeight) - (footer == null ? 0 : footer.clientHeight);
                 };
                 View.getMousePosition = function (element, e) {
                     var rect = element.getBoundingClientRect();
@@ -317,7 +325,8 @@ var Shos;
                         this.meshes.push(mesh);
                     }
                 };
-                View.defaultCameraDistance = 3000;
+                View.heightRate = 0.6180339887498948;
+                View.defaultCameraDistance = 4000;
                 View.defaultDirectionalLight = 2.0;
                 View.defaultAmbientLight = 0.5;
                 View.defaultBoidSize = 6;
@@ -459,10 +468,10 @@ var Shos;
             var Program = /** @class */ (function () {
                 function Program() {
                     var _this = this;
-                    this.boids = new Boids();
-                    this.view = new View();
                     this.appendTimer = 0;
                     Settings.load();
+                    this.boids = new Boids();
+                    this.view = new View();
                     setTimeout(function () { return _this.initialize(); }, Program.startTime);
                 }
                 Program.prototype.initialize = function () {
