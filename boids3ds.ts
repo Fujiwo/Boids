@@ -211,7 +211,7 @@ namespace Shos.Boids.Application3D2 {
         private static defaultCameraDistance   = 3000;
         private static defaultDirectionalLight = 2.0;
         private static defaultAmbientLight     = 0.5;
-        private static defaultBoidSize         = 6;
+        static defaultBoidSize         = 6;
         static boidSize                = Screen.defaultBoidSize;
         static defaultBoidMaterial     = Material.Standard;
         static boidMaterial            = Screen.defaultBoidMaterial;
@@ -492,10 +492,10 @@ namespace Shos.Boids.Application3D2 {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
             (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).onchange = SettingsPanel.onFormSubmit;
             this.setFreeViewingStereoscopyHandlers();
 
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
-            SettingsPanel.enableEnterKey("boidMaterialTextBox"       );
             SettingsPanel.enableEnterKey("randomParameterTextBox"    );
             SettingsPanel.enableEnterKey("initialBoidCountTextBox"   );
             SettingsPanel.enableEnterKey("maximumSpeedTextBox"       );
@@ -524,7 +524,7 @@ namespace Shos.Boids.Application3D2 {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
-                Number(settingForm.boidMaterialTextBox       .value),
+                (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex,
                 this.getFreeViewingStereoscopy(                    ),
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
@@ -545,7 +545,7 @@ namespace Shos.Boids.Application3D2 {
         private static initializeForm(): void {
             let settings = Settings.get();
             SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
-            SettingsPanel.setToInput("boidMaterialTextBox"       , settings.boidMaterial       );
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex = settings.boidMaterial;
             this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy                     );
             SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
             SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );

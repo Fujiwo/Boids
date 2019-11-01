@@ -475,9 +475,9 @@ var Shos;
                     document.getElementById("submitButton").onclick = SettingsPanel.onFormSubmit;
                     document.getElementById("resetButton").onclick = SettingsPanel.onReset;
                     document.getElementById("reloadButton").onclick = SettingsPanel.onReload;
+                    document.getElementById("boidMaterialSelect").onchange = SettingsPanel.onFormSubmit;
                     this.setFreeViewingStereoscopyHandlers();
                     SettingsPanel.enableEnterKey("boidSizeTextBox");
-                    SettingsPanel.enableEnterKey("boidMaterialTextBox");
                     SettingsPanel.enableEnterKey("randomParameterTextBox");
                     SettingsPanel.enableEnterKey("initialBoidCountTextBox");
                     SettingsPanel.enableEnterKey("maximumSpeedTextBox");
@@ -500,7 +500,7 @@ var Shos;
                 };
                 SettingsPanel.setSettingsFromForm = function () {
                     var settingForm = document.settingForm;
-                    Settings.set(Number(settingForm.boidSizeTextBox.value), Number(settingForm.boidMaterialTextBox.value), this.getFreeViewingStereoscopy(), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
+                    Settings.set(Number(settingForm.boidSizeTextBox.value), document.getElementById("boidMaterialSelect").selectedIndex, this.getFreeViewingStereoscopy(), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
                     Settings.save();
                 };
                 SettingsPanel.onReset = function () {
@@ -511,7 +511,7 @@ var Shos;
                 SettingsPanel.initializeForm = function () {
                     var settings = Settings.get();
                     SettingsPanel.setToInput("boidSizeTextBox", settings.boidSize);
-                    SettingsPanel.setToInput("boidMaterialTextBox", settings.boidMaterial);
+                    document.getElementById("boidMaterialSelect").selectedIndex = settings.boidMaterial;
                     this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy);
                     SettingsPanel.setToInput("randomParameterTextBox", settings.randomParameter);
                     SettingsPanel.setToInput("initialBoidCountTextBox", settings.initialBoidCount);

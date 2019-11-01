@@ -431,9 +431,9 @@ namespace Shos.Boids.Application3D {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
             (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).onchange = SettingsPanel.onFormSubmit;
 
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
-            SettingsPanel.enableEnterKey("boidMaterialTextBox"       );
             SettingsPanel.enableEnterKey("randomParameterTextBox"    );
             SettingsPanel.enableEnterKey("initialBoidCountTextBox"   );
             SettingsPanel.enableEnterKey("maximumSpeedTextBox"       );
@@ -456,7 +456,7 @@ namespace Shos.Boids.Application3D {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
-                Number(settingForm.boidMaterialTextBox       .value),
+                (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex,
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
                 Number(settingForm.maximumSpeedTextBox       .value),
@@ -476,7 +476,7 @@ namespace Shos.Boids.Application3D {
         private static initializeForm(): void {
             let settings = Settings.get();
             SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
-            SettingsPanel.setToInput("boidMaterialTextBox"       , settings.boidMaterial       );
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex = settings.boidMaterial;
             SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
             SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
             SettingsPanel.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
