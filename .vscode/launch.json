@@ -10,7 +10,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/boids3d.js",
+            "program": "${workspaceFolder}/boids.js",
             "sourceMaps": true
         }
     ]

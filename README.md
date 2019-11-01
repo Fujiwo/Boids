@@ -16,8 +16,12 @@ You can try at:
 * [Boids (an artificial life program) 3D —shoal simulator written in TypeScript with Three.js — | Sho's Software](https://www.shos.info/doc/boids3d.html)
 * [Boids (an artificial life program) 3D (Cross-eyed Free-viewing Stereoscopy) —shoal simulator written in TypeScript with Three.js — | Sho's Software](https://www.shos.info/doc/boids3ds.html)
 
-## Development Environment
+## Development Environment/Language/Library
 
-* [Visual Studio Code](https://code.visualstudio.com/)
-
+* [Visual Studio Code](https://code.visualstudio.com)
+* [TypeScript](https://www.typescriptlang.org)
+* [Three.js](https://threejs.org)
+* [three.d.ts](http://definitelytyped.org)
+* [Bootstrap 4](https://getbootstrap.com)
+* [jQuery](https://jquery.com)
 
