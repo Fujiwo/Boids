@@ -409,7 +409,7 @@ namespace Shos.Boids.Application3D2 {
     }
 
     class Settings {
-        private static key = "ShoBoids3D";
+        private static key = "ShoBoids3DS";
 
         static get() : any {
             return  {
@@ -492,8 +492,10 @@ namespace Shos.Boids.Application3D2 {
             (<HTMLInputElement>document.getElementById("submitButton")).onclick = SettingsPanel.onFormSubmit;
             (<HTMLInputElement>document.getElementById("resetButton" )).onclick = SettingsPanel.onReset     ;
             (<HTMLInputElement>document.getElementById("reloadButton")).onclick = SettingsPanel.onReload    ;
-            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).onchange = SettingsPanel.onFormSubmit;
-            this.setFreeViewingStereoscopyHandlers();
+
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect"          )).onchange = SettingsPanel.onFormSubmit;
+            (<HTMLSelectElement>document.getElementById("freeViewingStereoscopySelect")).onchange = SettingsPanel.onFormSubmit;
+            //this.setFreeViewingStereoscopyHandlers();
 
             SettingsPanel.enableEnterKey("boidSizeTextBox"           );
             SettingsPanel.enableEnterKey("randomParameterTextBox"    );
@@ -504,11 +506,11 @@ namespace Shos.Boids.Application3D2 {
             SettingsPanel.enableEnterKey("alignmentParameterTextBox" );
         }
 
-        private static setFreeViewingStereoscopyHandlers(): void  {
-            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-            for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
-                (<HTMLInputElement>freeViewingStereoscopyElements[index]).onclick = SettingsPanel.onFormSubmit;
-        }
+        // private static setFreeViewingStereoscopyHandlers(): void  {
+        //     let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+        //     for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
+        //         (<HTMLInputElement>freeViewingStereoscopyElements[index]).onclick = SettingsPanel.onFormSubmit;
+        // }
 
         private static onFormSubmit(): void {
             SettingsPanel.setSettingsFromForm();
@@ -524,8 +526,9 @@ namespace Shos.Boids.Application3D2 {
             let settingForm = (<any>document).settingForm;
             Settings.set(
                 Number(settingForm.boidSizeTextBox           .value),
-                (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex,
-                this.getFreeViewingStereoscopy(                    ),
+                // this.getFreeViewingStereoscopy(                    ),
+                (<HTMLSelectElement>document.getElementById("boidMaterialSelect"          )).selectedIndex,
+                (<HTMLSelectElement>document.getElementById("freeViewingStereoscopySelect")).selectedIndex,
                 Number(settingForm.randomParameterTextBox    .value),
                 Number(settingForm.initialBoidCountTextBox   .value),
                 Number(settingForm.maximumSpeedTextBox       .value),
@@ -545,14 +548,16 @@ namespace Shos.Boids.Application3D2 {
         private static initializeForm(): void {
             let settings = Settings.get();
             SettingsPanel.setToInput("boidSizeTextBox"           , settings.boidSize           );
-            (<HTMLSelectElement>document.getElementById("boidMaterialSelect")).selectedIndex = settings.boidMaterial;
-            this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy                     );
+            // this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy                     );
             SettingsPanel.setToInput("randomParameterTextBox"    , settings.randomParameter    );
             SettingsPanel.setToInput("initialBoidCountTextBox"   , settings.initialBoidCount   );
             SettingsPanel.setToInput("maximumSpeedTextBox"       , settings.maximumSpeed       );
             SettingsPanel.setToInput("cohesionParameterTextBox"  , settings.cohesionParameter  );
             SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
             SettingsPanel.setToInput("alignmentParameterTextBox" , settings.alignmentParameter );
+
+            (<HTMLSelectElement>document.getElementById("boidMaterialSelect"          )).selectedIndex = settings.boidMaterial          ;
+            (<HTMLSelectElement>document.getElementById("freeViewingStereoscopySelect")).selectedIndex = settings.freeViewingStereoscopy;
         }
 
         private static setToInput(inputName: string, value: number): void {
@@ -572,20 +577,20 @@ namespace Shos.Boids.Application3D2 {
                 SettingsPanel.onFormSubmit();
         }
 
-        private static getFreeViewingStereoscopy(): number {
-            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-            for (let index = 0; index < freeViewingStereoscopyElements.length; index++){
-                if ((<HTMLInputElement>freeViewingStereoscopyElements[index]).checked)
-                    return index;
-            }
-            return 0;
-        }
+        // private static getFreeViewingStereoscopy(): number {
+        //     let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+        //     for (let index = 0; index < freeViewingStereoscopyElements.length; index++){
+        //         if ((<HTMLInputElement>freeViewingStereoscopyElements[index]).checked)
+        //             return index;
+        //     }
+        //     return 0;
+        // }
 
-        private static setFreeViewingStereoscopy(freeViewingStereoscopy: number): void  {
-            let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-            for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
-                (<HTMLInputElement>freeViewingStereoscopyElements[index]).checked = index == freeViewingStereoscopy;
-        }
+        // private static setFreeViewingStereoscopy(freeViewingStereoscopy: number): void  {
+        //     let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+        //     for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
+        //         (<HTMLInputElement>freeViewingStereoscopyElements[index]).checked = index == freeViewingStereoscopy;
+        // }
     }
 
     class Program {

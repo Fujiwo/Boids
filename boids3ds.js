@@ -461,7 +461,7 @@ var Shos;
                     Settings.set(data.boidSize, data.boidMaterial, data.freeViewingStereoscopy, data.randomParameter, data.initialBoidCount, data.maximumSpeed, data.cohesionParameter, data.separationParameter, data.alignmentParameter);
                     return true;
                 };
-                Settings.key = "ShoBoids3D";
+                Settings.key = "ShoBoids3DS";
                 return Settings;
             }());
             var SettingsPanel = /** @class */ (function () {
@@ -476,7 +476,8 @@ var Shos;
                     document.getElementById("resetButton").onclick = SettingsPanel.onReset;
                     document.getElementById("reloadButton").onclick = SettingsPanel.onReload;
                     document.getElementById("boidMaterialSelect").onchange = SettingsPanel.onFormSubmit;
-                    this.setFreeViewingStereoscopyHandlers();
+                    document.getElementById("freeViewingStereoscopySelect").onchange = SettingsPanel.onFormSubmit;
+                    //this.setFreeViewingStereoscopyHandlers();
                     SettingsPanel.enableEnterKey("boidSizeTextBox");
                     SettingsPanel.enableEnterKey("randomParameterTextBox");
                     SettingsPanel.enableEnterKey("initialBoidCountTextBox");
@@ -485,11 +486,11 @@ var Shos;
                     SettingsPanel.enableEnterKey("separationParameterTextBox");
                     SettingsPanel.enableEnterKey("alignmentParameterTextBox");
                 };
-                SettingsPanel.setFreeViewingStereoscopyHandlers = function () {
-                    var freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-                    for (var index = 0; index < freeViewingStereoscopyElements.length; index++)
-                        freeViewingStereoscopyElements[index].onclick = SettingsPanel.onFormSubmit;
-                };
+                // private static setFreeViewingStereoscopyHandlers(): void  {
+                //     let freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
+                //     for (let index = 0; index < freeViewingStereoscopyElements.length; index++)
+                //         (<HTMLInputElement>freeViewingStereoscopyElements[index]).onclick = SettingsPanel.onFormSubmit;
+                // }
                 SettingsPanel.onFormSubmit = function () {
                     SettingsPanel.setSettingsFromForm();
                     SettingsPanel.initializeForm();
@@ -500,7 +501,9 @@ var Shos;
                 };
                 SettingsPanel.setSettingsFromForm = function () {
                     var settingForm = document.settingForm;
-                    Settings.set(Number(settingForm.boidSizeTextBox.value), document.getElementById("boidMaterialSelect").selectedIndex, this.getFreeViewingStereoscopy(), Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
+                    Settings.set(Number(settingForm.boidSizeTextBox.value), 
+                    // this.getFreeViewingStereoscopy(                    ),
+                    document.getElementById("boidMaterialSelect").selectedIndex, document.getElementById("freeViewingStereoscopySelect").selectedIndex, Number(settingForm.randomParameterTextBox.value), Number(settingForm.initialBoidCountTextBox.value), Number(settingForm.maximumSpeedTextBox.value), Number(settingForm.cohesionParameterTextBox.value), Number(settingForm.separationParameterTextBox.value), Number(settingForm.alignmentParameterTextBox.value));
                     Settings.save();
                 };
                 SettingsPanel.onReset = function () {
@@ -511,14 +514,15 @@ var Shos;
                 SettingsPanel.initializeForm = function () {
                     var settings = Settings.get();
                     SettingsPanel.setToInput("boidSizeTextBox", settings.boidSize);
-                    document.getElementById("boidMaterialSelect").selectedIndex = settings.boidMaterial;
-                    this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy);
+                    // this.setFreeViewingStereoscopy(settings.freeViewingStereoscopy                     );
                     SettingsPanel.setToInput("randomParameterTextBox", settings.randomParameter);
                     SettingsPanel.setToInput("initialBoidCountTextBox", settings.initialBoidCount);
                     SettingsPanel.setToInput("maximumSpeedTextBox", settings.maximumSpeed);
                     SettingsPanel.setToInput("cohesionParameterTextBox", settings.cohesionParameter);
                     SettingsPanel.setToInput("separationParameterTextBox", settings.separationParameter);
                     SettingsPanel.setToInput("alignmentParameterTextBox", settings.alignmentParameter);
+                    document.getElementById("boidMaterialSelect").selectedIndex = settings.boidMaterial;
+                    document.getElementById("freeViewingStereoscopySelect").selectedIndex = settings.freeViewingStereoscopy;
                 };
                 SettingsPanel.setToInput = function (inputName, value) {
                     var elements = document.getElementsByName(inputName);
@@ -533,19 +537,6 @@ var Shos;
                 SettingsPanel.onKeyPress = function () {
                     if (window.event != null && window.event.keyCode == 13)
                         SettingsPanel.onFormSubmit();
-                };
-                SettingsPanel.getFreeViewingStereoscopy = function () {
-                    var freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-                    for (var index = 0; index < freeViewingStereoscopyElements.length; index++) {
-                        if (freeViewingStereoscopyElements[index].checked)
-                            return index;
-                    }
-                    return 0;
-                };
-                SettingsPanel.setFreeViewingStereoscopy = function (freeViewingStereoscopy) {
-                    var freeViewingStereoscopyElements = document.getElementsByName("freeViewingStereoscopy");
-                    for (var index = 0; index < freeViewingStereoscopyElements.length; index++)
-                        freeViewingStereoscopyElements[index].checked = index == freeViewingStereoscopy;
                 };
                 return SettingsPanel;
             }());
