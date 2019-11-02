@@ -1,6 +1,8 @@
 # Shos.Boids
 [Boids](https://en.wikipedia.org/wiki/Boids) (an artificial life program) —shoal simulator written in TypeScript— | Sho's Software
 
+* Japanese Document: [[TypeScript][WebGL][Three.js] Boids (an artificial life program) —shoal simulator written in TypeScript— | プログラミング C# - 翔ソフトウェア (Shos)](https://wp.shos.info/2019/11/02/typescriptwebglthree-js-boids-an-artificial-life-program-shoal-simulator-written-in-typescript/)
+
 Boids is an artificial life simulation originally developed by [Craig Reynolds](http://www.red3d.com/cwr/).
 Boids simulates the three behaviors of each individual animal in a group:
 * Separation: steer to avoid crowding
