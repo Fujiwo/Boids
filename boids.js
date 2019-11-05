@@ -429,8 +429,8 @@ var Shos;
                     this.boids.move(this.view.size);
                     requestAnimationFrame(function () { return _this.step(); });
                 };
-                Program.createTime = 10;
-                Program.startTime = 100;
+                Program.createTime = 15;
+                Program.startTime = 300;
                 Program.colorValueBase = 0xa0; // 0x00~0xff
                 Program.opacityBase1 = 0.40; // 0.0~opacityBase2
                 Program.opacityBase2 = 0.60; // opacityBase1~1.0

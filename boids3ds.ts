@@ -594,8 +594,8 @@ namespace Shos.Boids.Application3D2 {
     }
 
     class Program {
-        private static createTime       =  10;
-        private static startTime        = 100;
+        private static createTime       =  15;
+        private static startTime        = 300;
         private static colorValueBase   = 0x40; // 0x00~0xff
         private static opacityBase1     = 0.40; // 0.0~opacityBase2
         private static opacityBase2     = 0.60; // opacityBase1~1.0
